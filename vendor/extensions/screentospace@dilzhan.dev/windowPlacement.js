@@ -10,6 +10,7 @@
 
 import { ExtensionConstants } from './constants.js';
 import GLib from 'gi://GLib';
+import { isDesktopSurface } from './desktopWindows.js';
 
 /**
  * Handles placing windows on appropriate workspaces
@@ -273,7 +274,7 @@ export class WindowPlacementHandler {
     _getOtherWindowsOnMonitor(workspace, excludeWindow, monitor) {
         return workspace.list_windows().filter(w => 
             w !== excludeWindow && 
-            !w.is_always_on_all_workspaces() && 
+            !isDesktopSurface(w) && !w.is_always_on_all_workspaces() &&
             w.get_monitor() === monitor
         );
     }
@@ -343,7 +344,7 @@ export class WindowPlacementHandler {
         try {
             return workspace.list_windows().some(w => {
                 try {
-                    return !w.is_always_on_all_workspaces();
+                    return !isDesktopSurface(w) && !w.is_always_on_all_workspaces();
                 } catch (error) {
                     return false;
                 }
@@ -386,9 +387,9 @@ export class WindowPlacementHandler {
         }
 
         const currentWindows = window.get_workspace().list_windows()
-            .filter(w => w !== window && !w.is_always_on_all_workspaces());
+            .filter(w => w !== window && !isDesktopSurface(w) && !w.is_always_on_all_workspaces());
         const freeWorkspaceWindows = manager.get_workspace_by_index(firstFree).list_windows()
-            .filter(w => w !== window && !w.is_always_on_all_workspaces());
+            .filter(w => w !== window && !isDesktopSurface(w) && !w.is_always_on_all_workspaces());
 
         this._reorderWorkspaces(manager, currentIndex, firstFree, currentWindows);
         
@@ -438,14 +439,14 @@ export class WindowPlacementHandler {
         }
 
         const currentWindows = window.get_workspace().list_windows()
-            .filter(w => w !== window && !w.is_always_on_all_workspaces());
+            .filter(w => w !== window && !isDesktopSurface(w) && !w.is_always_on_all_workspaces());
         
         if (currentWindows.length > 0) {
             return;
         }
 
         const occupiedWindows = manager.get_workspace_by_index(lastOccupied).list_windows()
-            .filter(w => w !== window && !w.is_always_on_all_workspaces());
+            .filter(w => w !== window && !isDesktopSurface(w) && !w.is_always_on_all_workspaces());
 
         manager.reorder_workspace(manager.get_workspace_by_index(currentIndex), lastOccupied);
         occupiedWindows.forEach(w => w.change_workspace_by_index(lastOccupied, false));

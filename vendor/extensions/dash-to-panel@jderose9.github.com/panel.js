@@ -33,6 +33,7 @@ import GObject from 'gi://GObject'
 import Graphene from 'gi://Graphene'
 
 import * as AppIcons from './appIcons.js'
+import { destroyFocusHighlight } from './focusSlider.js'
 import * as Utils from './utils.js'
 import * as Taskbar from './taskbar.js'
 import * as TaskbarItemContainer from './taskbar.js'
@@ -415,6 +416,7 @@ export const Panel = GObject.registerClass(
     }
 
     disable() {
+      destroyFocusHighlight(this)
       this.panelStyle.disable()
 
       this._timeoutsHandler.destroy()

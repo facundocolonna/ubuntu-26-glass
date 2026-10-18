@@ -439,6 +439,21 @@ export function getAllMetaWindows() {
   return global.get_window_actors().map((w) => w.meta_window)
 }
 
+export function isTaskbarWindow(window) {
+  if (!window || window.skip_taskbar || window.get_window_type() === Meta.WindowType.DESKTOP)
+    return false
+
+  // DING emulates desktop windows on Wayland. Secondary desktop surfaces can
+  // appear before their hide-from-window-list hint reaches Shell's app tracker.
+  if (window.customJS_ding?._hideFromWindowList)
+    return false
+
+  const appId = window.get_gtk_application_id?.()
+  const title = window.get_title?.() || ''
+  return !(appId === 'com.rastersoft.ding' &&
+    (/^@!-?\d+,-?\d+;[BDHFT]+$/i.test(title) || /^Desktop Icons \d+$/.test(title)))
+}
+
 export const checkIfWindowHasTransient = function (window) {
   let hasTransient
 

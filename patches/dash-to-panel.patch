@@ -20,9 +20,18 @@
        }
  
        if (this._dotsContainer.get_style() != inlineStyle) {
+@@ -1860,7 +1866,7 @@
+ // nautilus desktop window.
+ export function getInterestingWindows(app, monitor, isolateMonitors) {
+   let windows = (app ? app.get_windows() : Utils.getAllMetaWindows()).filter(
+-    (w) => !w.skip_taskbar,
++    Utils.isTaskbarWindow,
+   )
+ 
+   // When using workspace or monitor isolation, we filter out windows
 --- /dev/null
 +++ b/focusSlider.js
-@@ -0,0 +1,147 @@
+@@ -0,0 +1,162 @@
 +import Clutter from 'gi://Clutter';
 +import GLib from 'gi://GLib';
 +import Shell from 'gi://Shell';
@@ -38,6 +47,14 @@
 +        sliders.set(panel, slider);
 +    }
 +    slider.select(icon, color);
++}
++
++export function destroyFocusHighlight(panel) {
++    const slider = sliders.get(panel);
++    if (!slider)
++        return;
++    sliders.delete(panel);
++    slider.destroy();
 +}
 +
 +export class FocusSlider {
@@ -72,7 +89,7 @@
 +            this.layer.set_size(Math.max(1, panel.width), Math.max(1, panel.height));
 +            this.queueUpdate(false);
 +        });
-+        this.actor.connect('destroy', () => this.destroy());
++        this.actor.connect('destroy', () => this.destroy(true));
 +    }
 +
 +    select(icon, color) {
@@ -157,7 +174,10 @@
 +        this.targetIds = [];
 +    }
 +
-+    destroy() {
++    destroy(fromActor = false) {
++        if (this.destroyed)
++            return;
++        this.destroyed = true;
 +        if (this.pending)
 +            GLib.source_remove(this.pending);
 +        this.pending = 0;
@@ -168,11 +188,31 @@
 +        if (this.panel._personalFocusLayer === this.layer)
 +            this.panel._personalFocusLayer = null;
 +        this.target = null;
++        if (!fromActor) {
++            this.actor.destroy();
++            this.layer.destroy();
++        }
 +    }
 +}
 --- a/panel.js
 +++ b/panel.js
-@@ -1076,6 +1076,14 @@
+@@ -33,6 +33,7 @@
+ import Graphene from 'gi://Graphene'
+ 
+ import * as AppIcons from './appIcons.js'
++import { destroyFocusHighlight } from './focusSlider.js'
+ import * as Utils from './utils.js'
+ import * as Taskbar from './taskbar.js'
+ import * as TaskbarItemContainer from './taskbar.js'
+@@ -415,6 +416,7 @@
+     }
+ 
+     disable() {
++      destroyFocusHighlight(this)
+       this.panelStyle.disable()
+ 
+       this._timeoutsHandler.destroy()
+@@ -1076,6 +1078,14 @@
  
        this.set_allocation(box)
        this.panel.allocate(panelAlloc)
@@ -187,7 +227,7 @@
  
        // apply padding to panel's children, after panel allocation
        panelAlloc[this.varCoord.c1] += this.geom.varPadding
-@@ -1303,6 +1311,7 @@
+@@ -1303,6 +1313,7 @@
          let rect = metaWindow.get_frame_rect()
  
          return (
@@ -195,6 +235,42 @@
            metaWindow.get_monitor() == this.monitor.index &&
            metaWindow.showing_on_its_workspace() &&
            metaWindow.get_window_type() != Meta.WindowType.DESKTOP &&
+--- a/panelManager.js
++++ b/panelManager.js
+@@ -316,6 +316,8 @@
+   }
+ 
+   disable(reset) {
++    // Let per-panel extensions release their indicators before actors disappear.
++    global.dashToPanel?.emit('panels-destroying')
+     this.primaryPanel && this.overview.disable()
+     this.proximityManager.destroy()
+ 
+--- a/panelSettings.js
++++ b/panelSettings.js
+@@ -201,12 +201,19 @@
+ }
+ 
+ export function getPanelElementPositions(settings, monitorIndex) {
+-  return getMonitorSetting(
++  let positions = getMonitorSetting(
+     settings,
+     'panel-element-positions',
+     monitorIndex,
+-    Pos.defaults,
+-  )
++    null,
++  )
++  // A newly connected display has no saved monitor ID. In synchronized mode
++  // inherit the existing layout instead of reverting to the stock left taskbar.
++  if (!positions && settings.get_boolean('panel-element-positions-monitors-sync'))
++    positions = Object.values(getSettingsJson(settings, 'panel-element-positions'))
++      .find((layout) => Array.isArray(layout) && layout.length)
++
++  return positions || Pos.defaults
+ }
+ 
+ export function setPanelElementPositions(settings, monitorIndex, value) {
 --- a/stylesheet.css
 +++ b/stylesheet.css
 @@ -269,3 +269,15 @@
@@ -213,3 +289,38 @@
 +#uiGroup.br12 .dashtopanelPanel.dock .showdesktop-button:hover {
 + background-color: rgba(235, 240, 250, 0.40);
 +}
+--- a/taskbar.js
++++ b/taskbar.js
+@@ -1146,7 +1146,7 @@
+   }
+ 
+   _getRunningApps() {
+-    let windows = Utils.getAllMetaWindows()
++    let windows = Utils.getAllMetaWindows().filter(Utils.isTaskbarWindow)
+     let apps = []
+ 
+     for (let i = 0, l = windows.length; i < l; ++i) {
+--- a/utils.js
++++ b/utils.js
+@@ -439,6 +439,21 @@
+   return global.get_window_actors().map((w) => w.meta_window)
+ }
+ 
++export function isTaskbarWindow(window) {
++  if (!window || window.skip_taskbar || window.get_window_type() === Meta.WindowType.DESKTOP)
++    return false
++
++  // DING emulates desktop windows on Wayland. Secondary desktop surfaces can
++  // appear before their hide-from-window-list hint reaches Shell's app tracker.
++  if (window.customJS_ding?._hideFromWindowList)
++    return false
++
++  const appId = window.get_gtk_application_id?.()
++  const title = window.get_title?.() || ''
++  return !(appId === 'com.rastersoft.ding' &&
++    (/^@!-?\d+,-?\d+;[BDHFT]+$/i.test(title) || /^Desktop Icons \d+$/.test(title)))
++}
++
+ export const checkIfWindowHasTransient = function (window) {
+   let hasTransient
+ 

@@ -48,6 +48,30 @@ del ayudante de pruebas de GNOME:
 
 Estas comprobaciones no requieren reiniciar la sesión real del usuario.
 
+## Versión 1.2.0: varias pantallas
+
+Se corrigieron los contenedores de Desktop Icons NG que aparecían como ventanas,
+la herencia del diseño en una pantalla sin configuración y el indicador de
+CPU/RAM en barras secundarias. El selector de foco libera sus actores al
+reconstruir las barras. Se mantiene la pantalla principal seleccionada en GNOME.
+
+Prueba con GNOME y tres pantallas virtuales de 1280×720, 1024×768 y 1600×900:
+
+- Las tres pantallas, sin identificadores configurados, heredan aplicaciones
+  centradas y el botón de aplicaciones oculto.
+- Las tres barras muestran CPU/RAM, solo esas métricas, en el extremo izquierdo.
+- Una ventana real marcada como superficie DING se excluye de la barra y de
+  ScreenToSpace; al retirar la marca vuelve a tratarse como ventana normal.
+- El paso de tres barras a una y luego a tres reconstruye los indicadores,
+  con lecturas válidas y sin duplicarlos. Se usa la misma ruta de reconstrucción
+  de Dash to Panel que ante cambios de monitor.
+
+El diseño se aplicó también a las tres pantallas físicas conectadas del usuario.
+La carga del código nuevo en esa sesión queda pendiente de cerrar sesión y
+volver a entrar. Los registros del compositor de prueba incluyen avisos de la
+extensión existente de esquinas al destruir una ventana del ayudante de prueba;
+las comprobaciones de las barras y del monitor de sistema finalizaron correctamente.
+
 ## Repetir la compilación sin instalar el paquete
 
 Después de instalar las dependencias de compilación de `PAQUETES.md`:

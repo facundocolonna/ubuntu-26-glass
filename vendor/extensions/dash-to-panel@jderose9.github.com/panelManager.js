@@ -316,6 +316,8 @@ export const PanelManager = class {
   }
 
   disable(reset) {
+    // Let per-panel extensions release their indicators before actors disappear.
+    global.dashToPanel?.emit('panels-destroying')
     this.primaryPanel && this.overview.disable()
     this.proximityManager.destroy()
 

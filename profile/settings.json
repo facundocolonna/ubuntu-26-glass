@@ -1279,7 +1279,7 @@
         },
         "primary-monitor": {
           "type": "s",
-          "value": "'0'"
+          "value": "''"
         }
       }
     },

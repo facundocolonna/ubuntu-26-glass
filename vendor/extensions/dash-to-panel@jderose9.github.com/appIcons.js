@@ -1866,7 +1866,7 @@ export function closeAllWindows(app, monitor) {
 // nautilus desktop window.
 export function getInterestingWindows(app, monitor, isolateMonitors) {
   let windows = (app ? app.get_windows() : Utils.getAllMetaWindows()).filter(
-    (w) => !w.skip_taskbar,
+    Utils.isTaskbarWindow,
   )
 
   // When using workspace or monitor isolation, we filter out windows

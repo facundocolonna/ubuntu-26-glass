@@ -1,0 +1,119 @@
+--- /dev/null
++++ b/desktopWindows.js
+@@ -0,0 +1,12 @@
++// Desktop Icons NG uses ordinary Wayland windows to draw each desktop.
++import Meta from 'gi://Meta';
++
++export function isDesktopSurface(window) {
++    if (window.get_window_type() === Meta.WindowType.DESKTOP ||
++        window.customJS_ding?._hideFromWindowList)
++        return true;
++    const appId = window.get_gtk_application_id?.();
++    const title = window.get_title?.() || '';
++    return appId === 'com.rastersoft.ding' &&
++        (/^@!-?\d+,-?\d+;[BDHFT]+$/i.test(title) || /^Desktop Icons \d+$/.test(title));
++}
+--- a/windowFilter.js
++++ b/windowFilter.js
+@@ -9,6 +9,7 @@
+  */
+ 
+ import Meta from 'gi://Meta';
++import { isDesktopSurface } from './desktopWindows.js';
+ import { ExtensionConstants } from './constants.js';
+ 
+ /**
+@@ -29,7 +30,7 @@
+             return false;
+         }
+ 
+-        return window.window_type === Meta.WindowType.NORMAL && 
++        return window.window_type === Meta.WindowType.NORMAL && !isDesktopSurface(window) &&
+                !window.is_always_on_all_workspaces();
+     }
+ 
+--- a/windowPlacement.js
++++ b/windowPlacement.js
+@@ -10,6 +10,7 @@
+ 
+ import { ExtensionConstants } from './constants.js';
+ import GLib from 'gi://GLib';
++import { isDesktopSurface } from './desktopWindows.js';
+ 
+ /**
+  * Handles placing windows on appropriate workspaces
+@@ -273,7 +274,7 @@
+     _getOtherWindowsOnMonitor(workspace, excludeWindow, monitor) {
+         return workspace.list_windows().filter(w => 
+             w !== excludeWindow && 
+-            !w.is_always_on_all_workspaces() && 
++            !isDesktopSurface(w) && !w.is_always_on_all_workspaces() &&
+             w.get_monitor() === monitor
+         );
+     }
+@@ -343,7 +344,7 @@
+         try {
+             return workspace.list_windows().some(w => {
+                 try {
+-                    return !w.is_always_on_all_workspaces();
++                    return !isDesktopSurface(w) && !w.is_always_on_all_workspaces();
+                 } catch (error) {
+                     return false;
+                 }
+@@ -386,9 +387,9 @@
+         }
+ 
+         const currentWindows = window.get_workspace().list_windows()
+-            .filter(w => w !== window && !w.is_always_on_all_workspaces());
++            .filter(w => w !== window && !isDesktopSurface(w) && !w.is_always_on_all_workspaces());
+         const freeWorkspaceWindows = manager.get_workspace_by_index(firstFree).list_windows()
+-            .filter(w => w !== window && !w.is_always_on_all_workspaces());
++            .filter(w => w !== window && !isDesktopSurface(w) && !w.is_always_on_all_workspaces());
+ 
+         this._reorderWorkspaces(manager, currentIndex, firstFree, currentWindows);
+         
+@@ -438,14 +439,14 @@
+         }
+ 
+         const currentWindows = window.get_workspace().list_windows()
+-            .filter(w => w !== window && !w.is_always_on_all_workspaces());
++            .filter(w => w !== window && !isDesktopSurface(w) && !w.is_always_on_all_workspaces());
+         
+         if (currentWindows.length > 0) {
+             return;
+         }
+ 
+         const occupiedWindows = manager.get_workspace_by_index(lastOccupied).list_windows()
+-            .filter(w => w !== window && !w.is_always_on_all_workspaces());
++            .filter(w => w !== window && !isDesktopSurface(w) && !w.is_always_on_all_workspaces());
+ 
+         manager.reorder_workspace(manager.get_workspace_by_index(currentIndex), lastOccupied);
+         occupiedWindows.forEach(w => w.change_workspace_by_index(lastOccupied, false));
+--- a/workspaceManager.js
++++ b/workspaceManager.js
+@@ -9,6 +9,7 @@
+  */
+ 
+ import Gio from 'gi://Gio';
++import { isDesktopSurface } from './desktopWindows.js';
+ import { ExtensionConstants } from './constants.js';
+ 
+ /**
+@@ -146,7 +147,7 @@
+         return workspace.list_windows()
+             .filter(w => {
+                 try {
+-                    return !w.is_always_on_all_workspaces() && w.get_monitor() === monitor;
++                    return !isDesktopSurface(w) && !w.is_always_on_all_workspaces() && w.get_monitor() === monitor;
+                 } catch (error) {
+                     return false;
+                 }
+@@ -162,7 +163,7 @@
+         return workspace.list_windows()
+             .filter(w => {
+                 try {
+-                    return !w.is_always_on_all_workspaces();
++                    return !isDesktopSurface(w) && !w.is_always_on_all_workspaces();
+                 } catch (error) {
+                     return false;
+                 }

@@ -46,6 +46,8 @@ arquitecturas se intenta compilar la biblioteca y se detiene si no es compatible
   borde y sombra suaves; respeta las ventanas maximizadas y las aplicaciones
   que ya decoran sus esquinas.
 - System Monitor 6: **solo CPU y RAM**, a la izquierda de todo, cada 2 segundos.
+  Incluye integración local con Dash to Panel para mostrar el indicador en cada
+  pantalla y reconstruirlo cuando cambian las barras.
 - ScreenToSpace 15: al maximizar una ventana que comparte escritorio, la separa
   en un espacio propio y te lleva allí. Al restaurarla o cerrarla, vuelve al
   escritorio de origen. Se activa al maximizar, no al entrar en pantalla completa.
@@ -66,6 +68,12 @@ para que no compita con Dash to Panel; las otras extensiones se conservan.
 Activa los escritorios dinámicos de GNOME para que ScreenToSpace pueda usar
 espacios vacíos automáticamente. Los gestos de tres dedos siguen manejando
 actividades y el cambio de escritorio.
+
+Las pantallas nuevas heredan el diseño de la barra cuando está activada la
+sincronización entre monitores: aplicaciones centradas y botón de aplicaciones
+oculto. Se sigue la pantalla principal elegida en GNOME. Los contenedores de
+Desktop Icons NG en Wayland se excluyen de la barra y del manejo de escritorios
+de ScreenToSpace, conservando los iconos del escritorio.
 
 ## Copia y restauración
 
@@ -99,7 +107,7 @@ extensión agregada después pueden conservarse instalados, pero desactivados.
 Podés ejecutar el instalador varias veces: cada ejecución vuelve a aplicar el
 mismo perfil y crea su propia copia. No se habilitan actualizaciones automáticas
 de las extensiones desde este instalador. Una actualización manual de Dash to
-Panel o Blur my Shell puede reemplazar los cambios locales; ejecutá de nuevo el
+Panel, Blur my Shell, System Monitor o ScreenToSpace puede reemplazar los cambios locales; ejecutá de nuevo el
 instalador para recuperar esta versión.
 
 ## Mantenerlo y llevarlo a otra computadora
@@ -112,7 +120,7 @@ instalador para recuperar esta versión.
 - `vendor/themes/`: temas completos, con sus enlaces simbólicos.
 - `vendor/native/`: biblioteca nativa, fuentes y paquete binario de referencia.
 - `vendor/sources/`: fuentes originales de WhiteSur y Bibata.
-- `patches/`: diferencias locales de Dash to Panel y Blur my Shell respecto de
+- `patches/`: diferencias locales de las extensiones modificadas respecto de
   sus paquetes originales. Son documentación; el instalador ya usa el código
   modificado y no necesita aplicar parches.
 
@@ -132,7 +140,9 @@ git commit -m "Actualizar personalización"
 
 Las sumas detectan corrupción o cambios accidentales; no reemplazan una firma.
 La configuración original se conserva en la etiqueta Git `v1.0.0`; `v1.1.0`
-agrega ScreenToSpace y la barra con aplicaciones de todos los escritorios. Copiá el
+agrega ScreenToSpace y la barra con aplicaciones de todos los escritorios.
+`v1.2.0` agrega el soporte de varias pantallas y el filtrado de Desktop Icons.
+Copiá el
 repositorio o su archivo `.bundle` a otro disco o a un remoto para tener una
 copia fuera de este equipo. Para recuperar un bundle:
 
@@ -157,6 +167,10 @@ un compositor GNOME separado, comprueba el desenfoque nativo y la posición
 inferior izquierda de CPU/RAM, y prueba maximizar, restaurar y cerrar ventanas,
 así como la visibilidad global de la barra. Requiere la biblioteca nativa ya instalada y
 `gnome-shell-test-tool` disponible. No necesita cerrar tu sesión.
+
+`./tests/multimonitor.sh` ejecuta GNOME con tres pantallas virtuales, prueba
+la herencia del diseño y CPU/RAM en cada barra, descarta las superficies de
+escritorio y comprueba la reconstrucción de una a tres barras sin duplicados.
 
 Los scripts de este repositorio se distribuyen bajo GPL-3.0-or-later. Los
 componentes incluidos conservan sus autores y licencias originales; ver

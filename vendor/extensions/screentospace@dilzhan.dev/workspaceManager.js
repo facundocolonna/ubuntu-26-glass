@@ -9,6 +9,7 @@
  */
 
 import Gio from 'gi://Gio';
+import { isDesktopSurface } from './desktopWindows.js';
 import { ExtensionConstants } from './constants.js';
 
 /**
@@ -146,7 +147,7 @@ export class WorkspaceManager {
         return workspace.list_windows()
             .filter(w => {
                 try {
-                    return !w.is_always_on_all_workspaces() && w.get_monitor() === monitor;
+                    return !isDesktopSurface(w) && !w.is_always_on_all_workspaces() && w.get_monitor() === monitor;
                 } catch (error) {
                     return false;
                 }
@@ -162,7 +163,7 @@ export class WorkspaceManager {
         return workspace.list_windows()
             .filter(w => {
                 try {
-                    return !w.is_always_on_all_workspaces();
+                    return !isDesktopSurface(w) && !w.is_always_on_all_workspaces();
                 } catch (error) {
                     return false;
                 }

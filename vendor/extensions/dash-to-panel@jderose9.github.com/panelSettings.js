@@ -201,12 +201,19 @@ export function setPanelAnchor(settings, monitorIndex, value) {
 }
 
 export function getPanelElementPositions(settings, monitorIndex) {
-  return getMonitorSetting(
+  let positions = getMonitorSetting(
     settings,
     'panel-element-positions',
     monitorIndex,
-    Pos.defaults,
+    null,
   )
+  // A newly connected display has no saved monitor ID. In synchronized mode
+  // inherit the existing layout instead of reverting to the stock left taskbar.
+  if (!positions && settings.get_boolean('panel-element-positions-monitors-sync'))
+    positions = Object.values(getSettingsJson(settings, 'panel-element-positions'))
+      .find((layout) => Array.isArray(layout) && layout.length)
+
+  return positions || Pos.defaults
 }
 
 export function setPanelElementPositions(settings, monitorIndex, value) {

@@ -15,6 +15,14 @@ export function moveFocusHighlight(icon, color) {
     slider.select(icon, color);
 }
 
+export function destroyFocusHighlight(panel) {
+    const slider = sliders.get(panel);
+    if (!slider)
+        return;
+    sliders.delete(panel);
+    slider.destroy();
+}
+
 export class FocusSlider {
     constructor(panel, tracker = Shell.WindowTracker.get_default()) {
         this.panel = panel;
@@ -47,7 +55,7 @@ export class FocusSlider {
             this.layer.set_size(Math.max(1, panel.width), Math.max(1, panel.height));
             this.queueUpdate(false);
         });
-        this.actor.connect('destroy', () => this.destroy());
+        this.actor.connect('destroy', () => this.destroy(true));
     }
 
     select(icon, color) {
@@ -132,7 +140,10 @@ export class FocusSlider {
         this.targetIds = [];
     }
 
-    destroy() {
+    destroy(fromActor = false) {
+        if (this.destroyed)
+            return;
+        this.destroyed = true;
         if (this.pending)
             GLib.source_remove(this.pending);
         this.pending = 0;
@@ -143,5 +154,9 @@ export class FocusSlider {
         if (this.panel._personalFocusLayer === this.layer)
             this.panel._personalFocusLayer = null;
         this.target = null;
+        if (!fromActor) {
+            this.actor.destroy();
+            this.layer.destroy();
+        }
     }
 }

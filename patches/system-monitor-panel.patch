@@ -1,0 +1,128 @@
+--- a/extension.js
++++ b/extension.js
+@@ -2617,6 +2617,9 @@
+     }
+ 
+     destroy() {
++        if (this._destroyed)
++            return;
++        this._destroyed = true;
+         this._stopTimer();
+ 
+         // Outstanding statfs callbacks would otherwise fire against a
+@@ -2671,6 +2674,8 @@
+ export default class SystemMonitorExtension extends Extension {
+     enable() {
+         this._settings = this.getSettings();
++        this._secondaryIndicators = new Map();
++        this._syncSourceId = 0;
+         this._indicator = new SystemMonitorIndicator(this);
+ 
+         Main.panel.addToStatusArea(this.uuid, this._indicator);
+@@ -2678,16 +2683,29 @@
+ 
+         this._settings.connectObject(
+             'changed::panel-position', () => this._applyPosition(), this);
++        this._monitorsId = Main.layoutManager.connect('monitors-changed', () => this._queuePanelSync());
++        this._extensionsId = Main.extensionManager.connect('extension-state-changed', (_manager, extension) => {
++            if (extension.uuid === 'dash-to-panel@jderose9.github.com')
++                this._queuePanelSync();
++        });
++        this._syncPanels();
+     }
+ 
+     _applyPosition() {
+         if (!this._indicator)
+             return;
+ 
++        this._positionIndicator(this._indicator, Main.panel);
++        for (const [panel, indicator] of this._secondaryIndicators)
++            this._positionIndicator(indicator, panel);
++    }
++
++    _positionIndicator(indicator, panel) {
++
+         const key = this._settings.get_string('panel-position');
+         const {box, index} = PANEL_POSITIONS[key] ?? PANEL_POSITIONS['right'];
+ 
+-        const targetBox = Main.panel[box];
++        const targetBox = panel[box];
+         if (!targetBox) {
+             console.error(
+                 `System Monitor: this GNOME Shell no longer exposes ` +
+@@ -2695,13 +2713,74 @@
+             return;
+         }
+ 
+-        const container = this._indicator.container;
++        const container = indicator.container;
+         container.get_parent()?.remove_child(container);
+         targetBox.insert_child_at_index(
+             container, index ?? targetBox.get_n_children());
+     }
+ 
++    _queuePanelSync() {
++        if (!this._settings || this._syncSourceId)
++            return;
++        this._syncSourceId = GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
++            this._syncSourceId = 0;
++            this._syncPanels();
++            return GLib.SOURCE_REMOVE;
++        });
++    }
++
++    _disconnectDtp() {
++        if (this._dtpEmitter) {
++            this._dtpEmitter.disconnect(this._panelsCreatedId);
++            this._dtpEmitter.disconnect(this._panelsDestroyingId);
++        }
++        this._dtpEmitter = null;
++    }
++
++    _syncPanels() {
++        const dtp = global.dashToPanel;
++        if (dtp !== this._dtpEmitter) {
++            this._disconnectDtp();
++            if (dtp) {
++                this._dtpEmitter = dtp;
++                this._panelsCreatedId = dtp.connect('panels-created', () => this._queuePanelSync());
++                this._panelsDestroyingId = dtp.connect('panels-destroying', () => this._clearSecondaryIndicators());
++            }
++        }
++        const panels = new Set((dtp?.panels ?? []).map(p => p.panel).filter(p => p !== Main.panel));
++        for (const [panel, indicator] of this._secondaryIndicators) {
++            if (!panels.has(panel)) {
++                indicator.destroy();
++                this._secondaryIndicators.delete(panel);
++            }
++        }
++        for (const panel of panels) {
++            if (this._secondaryIndicators.has(panel))
++                continue;
++            const indicator = new SystemMonitorIndicator(this);
++            panel.addToStatusArea(this.uuid, indicator, 0, 'left');
++            this._secondaryIndicators.set(panel, indicator);
++            this._positionIndicator(indicator, panel);
++        }
++    }
++
++    _clearSecondaryIndicators() {
++        for (const indicator of this._secondaryIndicators.values())
++            indicator.destroy();
++        this._secondaryIndicators.clear();
++    }
++
+     disable() {
++        if (this._syncSourceId)
++            GLib.source_remove(this._syncSourceId);
++        this._syncSourceId = 0;
++        if (this._monitorsId)
++            Main.layoutManager.disconnect(this._monitorsId);
++        if (this._extensionsId)
++            Main.extensionManager.disconnect(this._extensionsId);
++        this._monitorsId = this._extensionsId = 0;
++        this._disconnectDtp();
++        this._clearSecondaryIndicators();
+         this._settings?.disconnectObject(this);
+         this._indicator?.destroy();
+         this._indicator = null;

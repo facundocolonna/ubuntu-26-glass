@@ -1146,7 +1146,7 @@ export const Taskbar = class extends EventEmitter {
   }
 
   _getRunningApps() {
-    let windows = Utils.getAllMetaWindows()
+    let windows = Utils.getAllMetaWindows().filter(Utils.isTaskbarWindow)
     let apps = []
 
     for (let i = 0, l = windows.length; i < l; ++i) {

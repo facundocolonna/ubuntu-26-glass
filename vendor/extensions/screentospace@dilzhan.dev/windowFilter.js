@@ -9,6 +9,7 @@
  */
 
 import Meta from 'gi://Meta';
+import { isDesktopSurface } from './desktopWindows.js';
 import { ExtensionConstants } from './constants.js';
 
 /**
@@ -29,7 +30,7 @@ export class WindowFilter {
             return false;
         }
 
-        return window.window_type === Meta.WindowType.NORMAL && 
+        return window.window_type === Meta.WindowType.NORMAL && !isDesktopSurface(window) &&
                !window.is_always_on_all_workspaces();
     }
 
