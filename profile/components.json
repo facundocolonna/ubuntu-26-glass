@@ -23,6 +23,12 @@
       "uuid": "system-monitor-panel@naimur",
       "version": 6,
       "url": "https://github.com/naimur900/system-monitor-panel-gnome"
+    },
+    {
+      "name": "ScreenToSpace",
+      "uuid": "screentospace@dilzhan.dev",
+      "version": 15,
+      "url": "https://github.com/DilZhaan/ScreenToSpace"
     }
   ],
   "themes": [

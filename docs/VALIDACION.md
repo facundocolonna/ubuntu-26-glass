@@ -30,6 +30,24 @@ geolocalización y fondos de GNOME no incluidos en Ubuntu); no impidieron las
 comprobaciones. No hubo errores JavaScript de las extensiones en la ejecución
 final. No se ha probado una instalación desde cero de Ubuntu ni otra arquitectura.
 
+## Versión 1.1.0: escritorios al maximizar
+
+El mismo día se agregó ScreenToSpace 15, descargado del catálogo oficial de
+extensiones GNOME, y se desactivó `isolate-workspaces` de Dash to Panel.
+No se agregan dependencias APT para esta extensión.
+
+Prueba en GNOME separado, con las cinco extensiones activas y ventanas reales
+del ayudante de pruebas de GNOME:
+
+- Maximizar una de dos ventanas la separa en otro escritorio y lo activa.
+- La otra ventana conserva su escritorio de origen.
+- La lista de ventanas utilizada por la barra incluye las de ambos escritorios.
+- Restaurar la ventana la devuelve al escritorio de origen y lo activa.
+- Ponerla en pantalla completa no cambia de escritorio con este perfil.
+- Volver a maximizarla y cerrarla regresa al escritorio de origen.
+
+Estas comprobaciones no requieren reiniciar la sesión real del usuario.
+
 ## Repetir la compilación sin instalar el paquete
 
 Después de instalar las dependencias de compilación de `PAQUETES.md`:

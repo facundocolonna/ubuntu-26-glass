@@ -46,6 +46,11 @@ arquitecturas se intenta compilar la biblioteca y se detiene si no es compatible
   borde y sombra suaves; respeta las ventanas maximizadas y las aplicaciones
   que ya decoran sus esquinas.
 - System Monitor 6: **solo CPU y RAM**, a la izquierda de todo, cada 2 segundos.
+- ScreenToSpace 15: al maximizar una ventana que comparte escritorio, la separa
+  en un espacio propio y te lleva allí. Al restaurarla o cerrarla, vuelve al
+  escritorio de origen. Se activa al maximizar, no al entrar en pantalla completa.
+- La barra muestra las aplicaciones abiertas de **todos los escritorios**;
+  sus ventanas siguen perteneciendo a su escritorio, no se duplican en los demás.
 - Iconos WhiteSur-dark, cursor Bibata-Modern-Ice de 24 px, Yaru-blue-dark y
   acento azul. Incluye también los temas WhiteSur base y claro.
 - Extension Manager, Retoques y las dependencias documentadas en
@@ -54,10 +59,13 @@ arquitecturas se intenta compilar la biblioteca y se detiene si no es compatible
 
 Activa la esquina superior izquierda para abrir actividades con el mouse.
 No modifica los gestos, los atajos del sistema, la lista de aplicaciones
-favoritas, la distribución de escritorios, el fondo de pantalla ni las
+favoritas, el fondo de pantalla ni las
 preferencias internas de las aplicaciones. Los menús propios de una aplicación
 no usan necesariamente los estilos de GNOME Shell. Ubuntu Dock se desactiva
 para que no compita con Dash to Panel; las otras extensiones se conservan.
+Activa los escritorios dinámicos de GNOME para que ScreenToSpace pueda usar
+espacios vacíos automáticamente. Los gestos de tres dedos siguen manejando
+actividades y el cambio de escritorio.
 
 ## Copia y restauración
 
@@ -84,6 +92,9 @@ ajustes de usuario. **No desinstala paquetes APT ni revierte actualizaciones del
 sistema**. Consultá [docs/PAQUETES.md](docs/PAQUETES.md) para el componente nativo.
 No borres una copia mientras quieras poder restaurarla. Las copias son privadas
 y no se guardan en este repositorio.
+También se aceptan las copias de la versión 1.0: recuperan los componentes que
+registraron y su lista anterior de extensiones activas. Los archivos de una
+extensión agregada después pueden conservarse instalados, pero desactivados.
 
 Podés ejecutar el instalador varias veces: cada ejecución vuelve a aplicar el
 mismo perfil y crea su propia copia. No se habilitan actualizaciones automáticas
@@ -97,7 +108,7 @@ instalador para recuperar esta versión.
   usan índices genéricos; no contiene identificadores de la pantalla original.
 - `profile/packages.json`: dependencias explícitas que resolverá APT.
 - `profile/components.json`: versiones, UUID, repositorios y commits de referencia.
-- `vendor/extensions/`: código exacto de las cuatro extensiones instaladas.
+- `vendor/extensions/`: código exacto de las cinco extensiones instaladas.
 - `vendor/themes/`: temas completos, con sus enlaces simbólicos.
 - `vendor/native/`: biblioteca nativa, fuentes y paquete binario de referencia.
 - `vendor/sources/`: fuentes originales de WhiteSur y Bibata.
@@ -120,7 +131,8 @@ git commit -m "Actualizar personalización"
 ```
 
 Las sumas detectan corrupción o cambios accidentales; no reemplazan una firma.
-La configuración original se conserva en la etiqueta Git `v1.0.0`. Copiá el
+La configuración original se conserva en la etiqueta Git `v1.0.0`; `v1.1.0`
+agrega ScreenToSpace y la barra con aplicaciones de todos los escritorios. Copiá el
 repositorio o su archivo `.bundle` a otro disco o a un remoto para tener una
 copia fuera de este equipo. Para recuperar un bundle:
 
@@ -140,9 +152,10 @@ Usa un bus D-Bus privado, GSettings con backend keyfile y carpetas temporales.
 Prueba instalación, reinstalación, restauración y recuperación ante un fallo
 parcial sin cambiar tu escritorio ni instalar paquetes del sistema.
 
-`./tests/headless.sh` realiza además una prueba con las cuatro extensiones en
+`./tests/headless.sh` realiza además una prueba con las cinco extensiones en
 un compositor GNOME separado, comprueba el desenfoque nativo y la posición
-inferior izquierda de CPU/RAM. Requiere la biblioteca nativa ya instalada y
+inferior izquierda de CPU/RAM, y prueba maximizar, restaurar y cerrar ventanas,
+así como la visibilidad global de la barra. Requiere la biblioteca nativa ya instalada y
 `gnome-shell-test-tool` disponible. No necesita cerrar tu sesión.
 
 Los scripts de este repositorio se distribuyen bajo GPL-3.0-or-later. Los

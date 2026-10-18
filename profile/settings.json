@@ -867,7 +867,7 @@
         },
         "isolate-workspaces": {
           "type": "b",
-          "value": "true"
+          "value": "false"
         },
         "leave-timeout": {
           "type": "i",
@@ -1470,6 +1470,59 @@
         "button-layout": {
           "type": "s",
           "value": "':minimize,maximize,close'"
+        }
+      }
+    },
+    "org.gnome.shell.extensions.screentospace": {
+      "extension": "screentospace@dilzhan.dev",
+      "values": {
+        "blacklist-apps": {
+          "type": "as",
+          "value": "@as []"
+        },
+        "disable-on-external-monitor": {
+          "type": "b",
+          "value": "false"
+        },
+        "filter-mode": {
+          "type": "s",
+          "value": "'blacklist'"
+        },
+        "insert-workspace-after-current": {
+          "type": "b",
+          "value": "true"
+        },
+        "move-window-when-maximized": {
+          "type": "b",
+          "value": "true"
+        },
+        "override-modifier": {
+          "type": "s",
+          "value": "'none'"
+        },
+        "trigger-on-fullscreen": {
+          "type": "b",
+          "value": "false"
+        },
+        "trigger-on-maximize": {
+          "type": "b",
+          "value": "true"
+        },
+        "triggers-migrated": {
+          "type": "b",
+          "value": "true"
+        },
+        "whitelist-apps": {
+          "type": "as",
+          "value": "@as []"
+        }
+      }
+    },
+    "org.gnome.mutter": {
+      "values": {
+        "dynamic-workspaces": {
+          "type": "b",
+          "value": "true"
         }
       }
     }

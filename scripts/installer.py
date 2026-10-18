@@ -219,7 +219,8 @@ def restore_backup(backup, data_home, components):
     if Path(state['data_home']) != data_home:
         raise RuntimeError('La copia corresponde a otra carpeta de usuario.')
     allowed = set(map(str, paths(data_home, components)))
-    if {f['relative'] for f in state['files']} != allowed:
+    recorded = {f['relative'] for f in state['files']}
+    if not recorded or not recorded.issubset(allowed):
         raise RuntimeError('La lista de archivos de la copia no coincide con este instalador.')
     for f in state['files']:
         relative = Path(f['relative'])
@@ -298,7 +299,7 @@ def main():
     packages = read_json(REPO / 'profile/packages.json')
     missing = [p for p in packages['runtime'] + packages['tools'] + packages['build'] if installed_version(p) is None]
     print(f'Integridad: {count} archivos verificados. {version}; Mutter {mutter}.')
-    print('Extensiones: barra, desenfoque, esquinas de ventanas, CPU y RAM.')
+    print('Extensiones: barra global, desenfoque, esquinas, CPU/RAM y escritorios al maximizar.')
     print('Temas: WhiteSur-dark, Bibata-Modern-Ice, Yaru-blue-dark.')
     print('Biblioteca de desenfoque: ' + {'installed': 'ya instalada y compatible', 'bundled': 'instalar .deb incluido', 'build': 'compilar para el Mutter instalado'}[mode])
     print('Paquetes pendientes: ' + (', '.join(missing) or 'ninguno'))

@@ -33,6 +33,15 @@ shell = i.Gio.Settings.new('org.gnome.shell')
 shell.set_strv('enabled-extensions', ['ubuntu-dock@ubuntu.com', 'example@unrelated'])
 i.Gio.Settings.sync()
 
+# A v1.0 backup has four extensions and no ScreenToSpace/Mutter settings.
+legacy_components = dict(components)
+legacy_components['extensions'] = [c for c in components['extensions']
+                                   if c['uuid'] != 'screentospace@dilzhan.dev']
+legacy_profile = {'format': 1, 'schemas': {
+    name: entry for name, entry in profile['schemas'].items()
+    if name not in ['org.gnome.shell.extensions.screentospace', 'org.gnome.mutter']}}
+i.snapshot(legacy_profile, legacy_components, data, base / 'backup-v1')
+
 
 def verify_installed():
     for name, entry in profile['schemas'].items():
@@ -90,3 +99,17 @@ else:
     raise AssertionError('Expected partial deployment to fail')
 verify_original()
 print('PASS rollback after a failure during partial deployment')
+
+stage = base / 'stage-legacy-restore'
+i.stage_payload(repo, stage, components)
+i.install_user_profile(profile, components, data, stage, base / 'backup-before-legacy-restore')
+i.restore_backup(base / 'backup-v1', data, components)
+assert shell.get_strv('enabled-extensions') == ['ubuntu-dock@ubuntu.com', 'example@unrelated']
+assert interface.get_string('icon-theme') == 'Yaru'
+assert (old_extension / 'old-file.txt').read_text() == 'Previous extension content\n'
+assert (old_theme / 'old-file.txt').read_text() == 'Previous icon content\n'
+for name, entry in legacy_profile['schemas'].items():
+    if 'extension' in entry:
+        settings, _ = i.schema_settings(name, entry, repo / 'vendor/extensions')
+        assert all(settings.get_user_value(key) is None for key in entry['values'])
+print('PASS restore of a v1.0 backup: original profile and activation restored; new extension inactive')

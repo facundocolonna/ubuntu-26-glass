@@ -1,0 +1,179 @@
+/**
+ * ScreenToSpace - Workspace Manager
+ * 
+ * Handles workspace discovery and management operations.
+ * Follows Single Responsibility Principle by focusing only on workspace-related operations.
+ * 
+ * @author DilZhaan
+ * @license GPL-2.0-or-later
+ */
+
+import Gio from 'gi://Gio';
+import { ExtensionConstants } from './constants.js';
+
+/**
+ * Manages workspace discovery and queries
+ */
+export class WorkspaceManager {
+    constructor() {
+        this._mutterSettings = new Gio.Settings({ 
+            schema_id: ExtensionConstants.SCHEMA_MUTTER 
+        });
+    }
+
+    /**
+     * Finds the first workspace with no windows on the specified monitor
+     * @param {Object} manager - Workspace manager instance
+     * @param {number} monitor - Monitor index
+     * @returns {number} Workspace index or -1 if none found
+     */
+    getFirstFreeWorkspace(manager, monitor) {
+        if (!manager) {
+            return -1;
+        }
+
+        const workspaceCount = manager.get_n_workspaces();
+        
+        for (let i = 0; i < workspaceCount; i++) {
+            const workspace = manager.get_workspace_by_index(i);
+            if (!workspace) {
+                continue;
+            }
+
+            const windowCount = this._getWindowCountOnMonitor(workspace, monitor);
+            
+            if (windowCount === 0) {
+                return i;
+            }
+        }
+        
+        return -1;
+    }
+    
+    /**
+     * Finds the last occupied workspace on the specified monitor
+     * @param {Object} manager - Workspace manager instance
+     * @param {number} currentIndex - Current workspace index
+     * @param {number} monitor - Monitor index
+     * @returns {number} Workspace index or -1 if none found
+     */
+    getLastOccupiedWorkspace(manager, currentIndex, monitor) {
+        if (!manager) {
+            return -1;
+        }
+
+        // Search backwards from current
+        for (let i = currentIndex - 1; i >= 0; i--) {
+            const workspace = manager.get_workspace_by_index(i);
+            if (!workspace) {
+                continue;
+            }
+
+            const windowCount = this._getWindowCountOnMonitor(workspace, monitor);
+            
+            if (windowCount > 0) {
+                return i;
+            }
+        }
+        
+        // Search forwards from current
+        const workspaceCount = manager.get_n_workspaces();
+        for (let i = currentIndex + 1; i < workspaceCount; i++) {
+            const workspace = manager.get_workspace_by_index(i);
+            if (!workspace) {
+                continue;
+            }
+
+            const windowCount = this._getWindowCountOnMonitor(workspace, monitor);
+            
+            if (windowCount > 0) {
+                return i;
+            }
+        }
+        
+        return -1;
+    }
+
+    /**
+     * Finds the first completely empty workspace after the given index
+     * @param {Object} manager - Workspace manager instance
+     * @param {number} afterIndex - Only consider workspaces after this index
+     * @returns {number} Workspace index or -1 if none found
+     */
+    getFirstCompletelyEmptyWorkspaceAfter(manager, afterIndex) {
+        if (!manager) {
+            return -1;
+        }
+
+        const workspaceCount = manager.get_n_workspaces();
+        for (let i = afterIndex + 1; i < workspaceCount; i++) {
+            const workspace = manager.get_workspace_by_index(i);
+            if (!workspace) {
+                continue;
+            }
+
+            if (this._getWindowCount(workspace) === 0) {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+    /**
+     * Checks if workspaces are only on primary monitor
+     * @returns {boolean}
+     */
+    isWorkspacesOnlyOnPrimary() {
+        if (!this._mutterSettings) {
+            return false;
+        }
+
+        return this._mutterSettings.get_boolean(
+            ExtensionConstants.SETTING_WORKSPACES_ONLY_PRIMARY
+        );
+    }
+
+    /**
+     * Gets count of windows on a specific monitor in a workspace
+     * @private
+     */
+    _getWindowCountOnMonitor(workspace, monitor) {
+        if (!workspace) {
+            return 0;
+        }
+
+        return workspace.list_windows()
+            .filter(w => {
+                try {
+                    return !w.is_always_on_all_workspaces() && w.get_monitor() === monitor;
+                } catch (error) {
+                    return false;
+                }
+            })
+            .length;
+    }
+
+    _getWindowCount(workspace) {
+        if (!workspace) {
+            return 0;
+        }
+
+        return workspace.list_windows()
+            .filter(w => {
+                try {
+                    return !w.is_always_on_all_workspaces();
+                } catch (error) {
+                    return false;
+                }
+            })
+            .length;
+    }
+
+    /**
+     * Cleanup resources
+     */
+    destroy() {
+        this._mutterSettings = null;
+    }
+}
