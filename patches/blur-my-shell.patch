@@ -1,0 +1,127 @@
+--- a/components/panel.js
++++ b/components/panel.js
+@@ -412,20 +412,36 @@
+             const clip_h = Math.ceil(geometry_height) +
+                 inset + workspace_edge_inset;
+ 
+-            background.set_clip(clip_x, clip_y, clip_w, clip_h);
+-            background.x = g_x - x + inset;
+-            background.y = offset + g_y - y + inset;
++            // Match floating Dash to Panel geometry without extra blur margins.
++            if (actors.is_dtp_panel) {
++                background.set_clip(x, y, geometry_width, geometry_height);
++                background.x = g_x - x;
++                background.y = g_y - y;
++            } else {
++                background.set_clip(clip_x, clip_y, clip_w, clip_h);
++                background.x = g_x - x + inset;
++                background.y = offset + g_y - y + inset;
++            }
+         } else {
+-            // updated coordinates for dynamic blur
+-            if (actors.is_dtp_panel) {
+-                background.x = wrapper.x + geometry_actor.x;
+-                background.y = wrapper.y + geometry_actor.y;
+-            } else {
+-                background.x = geometry_actor.x;
+-                background.y = geometry_actor.y;
+-            }
+-            background.width = geometry_width;
+-            background.height = geometry_height;
++            // Convert the panel bounds into the blur group's own coordinate space.
++            // Its allocation can already include Dash to Panel's margins.
++            const group = actors.widgets.background_group;
++            if (!group)
++                return;
++            const [stage_x, stage_y] = geometry_actor.get_transformed_position();
++            const [stage_w, stage_h] = geometry_actor.get_transformed_size();
++            // Meta.BackgroundGroup has zero size: transform_stage_point() fails.
++            // Both actors share the same unrotated panel coordinate system.
++            const [group_x, group_y] = group.get_transformed_position();
++            const scale_x = stage_w / geometry_width;
++            const scale_y = stage_h / geometry_height;
++            if (scale_x <= 0 || scale_y <= 0)
++                return;
++            background.set_position(
++                (stage_x - group_x) / scale_x,
++                (stage_y - group_y) / scale_y
++            );
++            background.set_size(geometry_width, geometry_height);
+         }
+ 
+         // update the monitor panel is on
+--- a/effects/corner.js
++++ b/effects/corner.js
+@@ -197,8 +197,8 @@
+             [this._clip_x0, this._clip_y0, this._clip_width, this._clip_height] = value;
+             uniforms.set_uniform(this, 'clip_x0', parseFloat(this._clip_x0 - 1e-6));
+             uniforms.set_uniform(this, 'clip_y0', parseFloat(this._clip_y0 - 1e-6));
+-            uniforms.set_uniform(this, 'clip_width', parseFloat(this._clip_width <= 0 ? -1 : this._clip_width + 3 - 1e-6));
+-            uniforms.set_uniform(this, 'clip_height', parseFloat(this._clip_height <= 0 ? -1 : this._clip_height + 3 - 1e-6));
++            uniforms.set_uniform(this, 'clip_width', parseFloat(this._clip_width <= 0 ? -1 : this._clip_width - 1e-6));
++            uniforms.set_uniform(this, 'clip_height', parseFloat(this._clip_height <= 0 ? -1 : this._clip_height - 1e-6));
+             this.update_radius();
+         }
+ 
+--- a/stylesheet.css
++++ b/stylesheet.css
+@@ -8,3 +8,59 @@
+ @import url("styles/overview.css");
+ @import url("styles/appfolders.css");
+ @import url("styles/panel-light-text.css");
++
++/* Personal tint: match Dash to Panel. */
++.bms-popup-surface-dark .popup-menu-content,
++.bms-popup-surface-dark .popup-sub-menu,
++.bms-popup-surface-dark .candidate-popup-content,
++.bms-popup-surface-dark .quick-settings,
++.bms-popup-surface-dark .quick-toggle-menu,
++.bms-popup-surface-dark .notification-banner,
++.bms-popup-surface-dark .osd-window,
++.bms-popup-surface-dark .resize-popup,
++.bms-popup-surface-dark .switcher-list,
++.bms-popup-surface-dark .workspace-switcher,
++.bms-popup-surface-dark .modal-dialog,
++.bms-popup-surface-dark .run-dialog,
++.bms-popup-surface-dark .datemenu-popover,
++.bms-popup-background-dark .popup-menu-content,
++.bms-popup-background-dark .popup-sub-menu,
++.bms-popup-background-dark .candidate-popup-content,
++.bms-popup-background-dark .quick-settings,
++.bms-popup-background-dark .quick-toggle-menu,
++.bms-popup-background-dark .notification-banner,
++.bms-popup-background-dark .osd-window,
++.bms-popup-background-dark .resize-popup,
++.bms-popup-background-dark .switcher-list,
++.bms-popup-background-dark .workspace-switcher,
++.bms-popup-background-dark .modal-dialog,
++.bms-popup-background-dark .run-dialog,
++.bms-popup-background-dark .datemenu-popover {
++ background-color: rgba(120, 134, 155, 0.25) !important;
++ border-radius: 12px !important;
++}
++
++/* Personal overview glass. */
++.overview-components-transparent .search-entry {
++ background-color: rgba(120, 134, 155, 0.25) !important;
++ border: 1px solid rgba(235, 240, 250, 0.16);
++ border-radius: 12px;
++ color: #f3f5f9;
++}
++.overview-components-transparent .search-entry:focus {
++ border-color: rgba(90, 160, 240, 0.8);
++}
++.appfolder-dialogs-dark {
++ background-color: rgba(120, 134, 155, 0.25);
++ border: 1px solid rgba(235, 240, 250, 0.16);
++ border-radius: 12px;
++}
++.appfolder-dialogs-dark .folder-name-entry {
++ background-color: transparent;
++ color: #f3f5f9;
++ border: none;
++}
++.overview-components-transparent .overview-tile .overview-label {
++ color: #f3f5f9;
++ text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
++}

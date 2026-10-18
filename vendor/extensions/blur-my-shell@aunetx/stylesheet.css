@@ -1,0 +1,66 @@
+@import url("styles/panel.css");
+@import url("styles/dash.css");
+@import url("styles/popup/base.css");
+@import url("styles/popup/transparent.css");
+@import url("styles/popup/light.css");
+@import url("styles/popup/dark.css");
+@import url("styles/popup/menu-items.css");
+@import url("styles/overview.css");
+@import url("styles/appfolders.css");
+@import url("styles/panel-light-text.css");
+
+/* Personal tint: match Dash to Panel. */
+.bms-popup-surface-dark .popup-menu-content,
+.bms-popup-surface-dark .popup-sub-menu,
+.bms-popup-surface-dark .candidate-popup-content,
+.bms-popup-surface-dark .quick-settings,
+.bms-popup-surface-dark .quick-toggle-menu,
+.bms-popup-surface-dark .notification-banner,
+.bms-popup-surface-dark .osd-window,
+.bms-popup-surface-dark .resize-popup,
+.bms-popup-surface-dark .switcher-list,
+.bms-popup-surface-dark .workspace-switcher,
+.bms-popup-surface-dark .modal-dialog,
+.bms-popup-surface-dark .run-dialog,
+.bms-popup-surface-dark .datemenu-popover,
+.bms-popup-background-dark .popup-menu-content,
+.bms-popup-background-dark .popup-sub-menu,
+.bms-popup-background-dark .candidate-popup-content,
+.bms-popup-background-dark .quick-settings,
+.bms-popup-background-dark .quick-toggle-menu,
+.bms-popup-background-dark .notification-banner,
+.bms-popup-background-dark .osd-window,
+.bms-popup-background-dark .resize-popup,
+.bms-popup-background-dark .switcher-list,
+.bms-popup-background-dark .workspace-switcher,
+.bms-popup-background-dark .modal-dialog,
+.bms-popup-background-dark .run-dialog,
+.bms-popup-background-dark .datemenu-popover {
+ background-color: rgba(120, 134, 155, 0.25) !important;
+ border-radius: 12px !important;
+}
+
+/* Personal overview glass. */
+.overview-components-transparent .search-entry {
+ background-color: rgba(120, 134, 155, 0.25) !important;
+ border: 1px solid rgba(235, 240, 250, 0.16);
+ border-radius: 12px;
+ color: #f3f5f9;
+}
+.overview-components-transparent .search-entry:focus {
+ border-color: rgba(90, 160, 240, 0.8);
+}
+.appfolder-dialogs-dark {
+ background-color: rgba(120, 134, 155, 0.25);
+ border: 1px solid rgba(235, 240, 250, 0.16);
+ border-radius: 12px;
+}
+.appfolder-dialogs-dark .folder-name-entry {
+ background-color: transparent;
+ color: #f3f5f9;
+ border: none;
+}
+.overview-components-transparent .overview-tile .overview-label {
+ color: #f3f5f9;
+ text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
+}

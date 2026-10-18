@@ -1,0 +1,33 @@
+{
+  "runtime": [
+    "python3-gi",
+    "gjs",
+    "libglib2.0-bin",
+    "dconf-gsettings-backend",
+    "gsettings-desktop-schemas",
+    "gir1.2-gtk-4.0",
+    "gir1.2-adw-1",
+    "gir1.2-handy-1",
+    "gir1.2-gnomedesktop-4.0",
+    "gir1.2-mutter-18",
+    "libmutter-18-0",
+    "libglib2.0-0t64",
+    "yaru-theme-gtk",
+    "yaru-theme-icon",
+    "fonts-ubuntu"
+  ],
+  "tools": [
+    "gnome-shell-extension-manager",
+    "gnome-tweaks"
+  ],
+  "build": [
+    "build-essential",
+    "meson",
+    "ninja-build",
+    "pkg-config",
+    "libglib2.0-dev",
+    "gobject-introspection",
+    "libgirepository1.0-dev",
+    "libmutter-18-dev"
+  ]
+}

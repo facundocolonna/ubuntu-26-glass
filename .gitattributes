@@ -1,0 +1,2 @@
+# Preserve the exact vendored bytes covered by SHA256SUMS.
+* -text

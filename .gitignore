@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+*.log
+.pytest_cache/
+build/
+.cache/
+backups/

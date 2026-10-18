@@ -1,0 +1,57 @@
+{
+  "extensions": [
+    {
+      "name": "Blur my Shell",
+      "uuid": "blur-my-shell@aunetx",
+      "version": 75,
+      "url": "https://github.com/aunetx/blur-my-shell"
+    },
+    {
+      "name": "Dash to Panel",
+      "uuid": "dash-to-panel@jderose9.github.com",
+      "version": 74,
+      "url": "https://github.com/home-sweet-gnome/dash-to-panel"
+    },
+    {
+      "name": "Rounded Window Corners Reborn",
+      "uuid": "rounded-window-corners@fxgn",
+      "version": 25,
+      "url": "https://github.com/flexagoon/rounded-window-corners"
+    },
+    {
+      "name": "System Monitor",
+      "uuid": "system-monitor-panel@naimur",
+      "version": 6,
+      "url": "https://github.com/naimur900/system-monitor-panel-gnome"
+    }
+  ],
+  "themes": [
+    "WhiteSur",
+    "WhiteSur-dark",
+    "WhiteSur-light",
+    "Bibata-Modern-Ice"
+  ],
+  "disable": [
+    "ubuntu-dock@ubuntu.com"
+  ],
+  "native": {
+    "package": "gnome-rounded-blur-local",
+    "source": "https://github.com/kancko/gnome-rounded-blur",
+    "commit": "a4db9e5947b1cea0a05c57768356921420f91293",
+    "binary_arch": "amd64",
+    "binary_mutter": "50.1-0ubuntu2.4",
+    "mutter_package": "libmutter-18-0"
+  },
+  "themes_source": {
+    "WhiteSur": {
+      "url": "https://github.com/vinceliuice/WhiteSur-icon-theme",
+      "commit": "73d8040da51a9ed74e47c7366e7e9ff437601a5c"
+    },
+    "Bibata": {
+      "url": "https://github.com/ful1e5/Bibata_Cursor",
+      "version": "2.0.6",
+      "commit": "b420533bc314ab08611586f691673f1f77475d1e",
+      "package": "bibata-cursor-theme_2.0.6-1build1_all.deb"
+    }
+  }
+}

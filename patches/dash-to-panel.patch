@@ -1,0 +1,215 @@
+--- a/appIcons.js
++++ b/appIcons.js
+@@ -21,6 +21,7 @@
+  * Some code was also adapted from the upstream Gnome Shell source code.
+  */
+ 
++import { moveFocusHighlight } from './focusSlider.js'
+ import Clutter from 'gi://Clutter'
+ import GLib from 'gi://GLib'
+ import Gio from 'gi://Gio'
+@@ -835,6 +836,11 @@
+           ) +
+           ';'
+         inlineStyle += this._appicon_normalstyle
++        moveFocusHighlight(this, cssHexTocssRgba(
++          highlightColor,
++          SETTINGS.get_int('focus-highlight-opacity') * 0.01,
++        ))
++        inlineStyle = 'margin: 0;'
+       }
+ 
+       if (this._dotsContainer.get_style() != inlineStyle) {
+--- /dev/null
++++ b/focusSlider.js
+@@ -0,0 +1,147 @@
++import Clutter from 'gi://Clutter';
++import GLib from 'gi://GLib';
++import Shell from 'gi://Shell';
++import St from 'gi://St';
++
++const sliders = new WeakMap();
++
++export function moveFocusHighlight(icon, color) {
++    const panel = icon.dtpPanel;
++    let slider = sliders.get(panel);
++    if (!slider) {
++        slider = new FocusSlider(panel);
++        sliders.set(panel, slider);
++    }
++    slider.select(icon, color);
++}
++
++export class FocusSlider {
++    constructor(panel, tracker = Shell.WindowTracker.get_default()) {
++        this.panel = panel;
++        this.target = null;
++        this.pending = 0;
++        this.ready = false;
++        this.actor = new St.Widget({
++            name: 'personal-focus-slider',
++            reactive: false,
++            can_focus: false,
++            x_align: Clutter.ActorAlign.START,
++            y_align: Clutter.ActorAlign.START,
++            opacity: 0,
++        });
++        this.layer = new Clutter.Actor({
++            reactive: false,
++            width: Math.max(1, panel.width),
++            height: Math.max(1, panel.height),
++            x_expand: true,
++            y_expand: true,
++            layout_manager: new Clutter.FixedLayout(),
++        });
++        panel._personalFocusLayer = this.layer;
++        this.layer.add_child(this.actor);
++        panel.insert_child_below(this.layer, panel.panel);
++        this.tracker = tracker;
++        this.trackerId = this.tracker.connect('notify::focus-app', () => this.queueUpdate());
++        this.workspaceId = global.workspace_manager.connect('active-workspace-changed', () => this.queueUpdate());
++        this.panelId = panel.connect('notify::allocation', () => {
++            this.layer.set_size(Math.max(1, panel.width), Math.max(1, panel.height));
++            this.queueUpdate(false);
++        });
++        this.actor.connect('destroy', () => this.destroy());
++    }
++
++    select(icon, color) {
++        if (this.target !== icon) {
++            this.disconnectTarget();
++            this.target = icon;
++            this.targetActor = icon._dotsContainer;
++            this.targetIds = [
++                this.targetActor.connect('notify::allocation', () => this.queueUpdate(false)),
++                this.targetActor.connect('notify::mapped', () => this.queueUpdate()),
++                this.targetActor.connect('destroy', () => {
++                    this.target = null;
++                    this.targetActor = null;
++                    this.targetIds = [];
++                    this.queueUpdate();
++                }),
++            ];
++        }
++        this.actor.set_style(`background-color: ${color}; border-radius: 10px;`);
++        this.queueUpdate(true);
++    }
++
++    queueUpdate(animate = true) {
++        this.animate = animate || this.animate;
++        if (this.pending)
++            return;
++        this.pending = GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
++            this.pending = 0;
++            const animateNow = this.animate;
++            this.animate = false;
++            this.update(animateNow);
++            return GLib.SOURCE_REMOVE;
++        });
++    }
++
++    update(animate) {
++        if (!this.target || !this.targetActor?.mapped ||
++            this.tracker.focus_app !== this.target.app ||
++            !this.target._checkIfMonitorHasFocus()) {
++            this.actor.remove_all_transitions();
++            this.actor.opacity = 0;
++            this.ready = false;
++            return;
++        }
++        if (!this.panel.has_allocation() || !this.layer.has_allocation())
++            return;
++        const [px, py] = this.layer.get_transformed_position();
++        const [pw, ph] = this.panel.get_transformed_size();
++        const [tx, ty] = this.targetActor.get_transformed_position();
++        const [tw, th] = this.targetActor.get_transformed_size();
++        if (![px, py, pw, ph, tx, ty, tw, th].every(Number.isFinite))
++            return;
++        const sx = pw / this.panel.width;
++        const sy = ph / this.panel.height;
++        if (!(sx > 0 && sy > 0 && tw > 0 && th > 0))
++            return;
++        const bounds = {
++            translation_x: (tx - px) / sx,
++            translation_y: (ty - py) / sy,
++            width: tw / sx,
++            height: th / sy,
++        };
++        if (!this.ready) {
++            this.actor.remove_all_transitions();
++            Object.assign(this.actor, bounds);
++            this.actor.opacity = 255;
++            this.ready = true;
++        } else {
++            this.actor.ease({
++                ...bounds,
++                opacity: 255,
++                duration: animate && St.Settings.get().enable_animations ? 180 : 0,
++                mode: Clutter.AnimationMode.EASE_OUT_CUBIC,
++            });
++        }
++    }
++
++    disconnectTarget() {
++        if (this.targetActor)
++            this.targetIds?.forEach(id => this.targetActor.disconnect(id));
++        this.targetActor = null;
++        this.targetIds = [];
++    }
++
++    destroy() {
++        if (this.pending)
++            GLib.source_remove(this.pending);
++        this.pending = 0;
++        this.disconnectTarget();
++        this.tracker.disconnect(this.trackerId);
++        global.workspace_manager.disconnect(this.workspaceId);
++        this.panel.disconnect(this.panelId);
++        if (this.panel._personalFocusLayer === this.layer)
++            this.panel._personalFocusLayer = null;
++        this.target = null;
++    }
++}
+--- a/panel.js
++++ b/panel.js
+@@ -1076,6 +1076,14 @@
+ 
+       this.set_allocation(box)
+       this.panel.allocate(panelAlloc)
++      if (this._personalFocusLayer) {
++        const focusBox = new Clutter.ActorBox()
++        focusBox.x1 = 0
++        focusBox.y1 = 0
++        focusBox.x2 = this.width
++        focusBox.y2 = this.height
++        this._personalFocusLayer.allocate(focusBox)
++      }
+ 
+       // apply padding to panel's children, after panel allocation
+       panelAlloc[this.varCoord.c1] += this.geom.varPadding
+@@ -1303,6 +1311,7 @@
+         let rect = metaWindow.get_frame_rect()
+ 
+         return (
++          metaWindow === global.display.focus_window &&
+           metaWindow.get_monitor() == this.monitor.index &&
+           metaWindow.showing_on_its_workspace() &&
+           metaWindow.get_window_type() != Meta.WindowType.DESKTOP &&
+--- a/stylesheet.css
++++ b/stylesheet.css
+@@ -269,3 +269,15 @@
+ #uiGroup.br20 .dashtopanelPanel.dock .showdesktop-button-vertical {
+ 	border-radius: 0 0 20px 20px !important;
+ }
++
++/* Visible show-desktop target. */
++.showdesktop-button,
++#uiGroup.br12 .dashtopanelPanel.dock .showdesktop-button {
++ margin: 9px 11px 9px 2px;
++ background-color: rgba(235, 240, 250, 0.22);
++ border-radius: 4px !important;
++}
++.showdesktop-button:hover,
++#uiGroup.br12 .dashtopanelPanel.dock .showdesktop-button:hover {
++ background-color: rgba(235, 240, 250, 0.40);
++}

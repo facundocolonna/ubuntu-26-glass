@@ -1,0 +1,1477 @@
+{
+  "format": 1,
+  "schemas": {
+    "org.gnome.shell.extensions.blur-my-shell": {
+      "extension": "blur-my-shell@aunetx",
+      "values": {
+        "brightness": {
+          "type": "d",
+          "value": "0.59999999999999998"
+        },
+        "color": {
+          "type": "(dddd)",
+          "value": "(0.0, 0.0, 0.0, 0.0)"
+        },
+        "color-and-noise": {
+          "type": "b",
+          "value": "true"
+        },
+        "debug": {
+          "type": "b",
+          "value": "false"
+        },
+        "hacks-level": {
+          "type": "i",
+          "value": "1"
+        },
+        "noise-amount": {
+          "type": "d",
+          "value": "0.0"
+        },
+        "noise-lightness": {
+          "type": "d",
+          "value": "0.0"
+        },
+        "pipelines": {
+          "type": "a{sa{sv}}",
+          "value": "{'pipeline_default': {'name': <'Default'>, 'effects': <[<{'type': <'native_static_gaussian_blur'>, 'id': <'effect_000000000000'>, 'params': <{'radius': <30>, 'brightness': <0.59999999999999998>}>}>]>}, 'pipeline_default_rounded': {'name': <'Default rounded'>, 'effects': <[<{'type': <'native_static_gaussian_blur'>, 'id': <'effect_000000000001'>, 'params': <{'radius': <30>, 'brightness': <0.59999999999999998>}>}>, <{'type': <'corner'>, 'id': <'effect_000000000002'>, 'params': <{'radius': <24>}>}>]>}, 'overview_soft_glass': {'name': <'Overview soft glass'>, 'effects': <[<{'type': <'native_static_gaussian_blur'>, 'id': <'overview_soft_blur'>, 'params': <{'radius': <22>, 'brightness': <0.78000000000000003>}>}>]>}}"
+        },
+        "settings-version": {
+          "type": "i",
+          "value": "2"
+        },
+        "sigma": {
+          "type": "i",
+          "value": "30"
+        }
+      }
+    },
+    "org.gnome.shell.extensions.blur-my-shell.appfolder": {
+      "extension": "blur-my-shell@aunetx",
+      "values": {
+        "blur": {
+          "type": "b",
+          "value": "true"
+        },
+        "brightness": {
+          "type": "d",
+          "value": "0.80000000000000004"
+        },
+        "color": {
+          "type": "(dddd)",
+          "value": "(0.0, 0.0, 0.0, 0.0)"
+        },
+        "customize": {
+          "type": "b",
+          "value": "true"
+        },
+        "noise-amount": {
+          "type": "d",
+          "value": "0.0"
+        },
+        "noise-lightness": {
+          "type": "d",
+          "value": "0.0"
+        },
+        "sigma": {
+          "type": "i",
+          "value": "18"
+        },
+        "style-dialogs": {
+          "type": "i",
+          "value": "3"
+        }
+      }
+    },
+    "org.gnome.shell.extensions.blur-my-shell.applications": {
+      "extension": "blur-my-shell@aunetx",
+      "values": {
+        "blacklist": {
+          "type": "as",
+          "value": "['Plank', 'com.desktop.ding', 'Conky']"
+        },
+        "blur": {
+          "type": "b",
+          "value": "false"
+        },
+        "blur-on-overview": {
+          "type": "b",
+          "value": "false"
+        },
+        "brightness": {
+          "type": "d",
+          "value": "1.0"
+        },
+        "color": {
+          "type": "(dddd)",
+          "value": "(0.0, 0.0, 0.0, 0.0)"
+        },
+        "corner-radius": {
+          "type": "i",
+          "value": "15"
+        },
+        "corner-when-maximized": {
+          "type": "b",
+          "value": "false"
+        },
+        "customize": {
+          "type": "b",
+          "value": "true"
+        },
+        "dynamic-opacity": {
+          "type": "b",
+          "value": "true"
+        },
+        "enable-all": {
+          "type": "b",
+          "value": "false"
+        },
+        "noise-amount": {
+          "type": "d",
+          "value": "0.0"
+        },
+        "noise-lightness": {
+          "type": "d",
+          "value": "0.0"
+        },
+        "opacity": {
+          "type": "i",
+          "value": "215"
+        },
+        "pipeline": {
+          "type": "s",
+          "value": "'pipeline_default'"
+        },
+        "sigma": {
+          "type": "i",
+          "value": "30"
+        },
+        "static-blur": {
+          "type": "b",
+          "value": "false"
+        },
+        "unblur-when-fullscreen": {
+          "type": "b",
+          "value": "false"
+        },
+        "whitelist": {
+          "type": "as",
+          "value": "@as []"
+        }
+      }
+    },
+    "org.gnome.shell.extensions.blur-my-shell.coverflow-alt-tab": {
+      "extension": "blur-my-shell@aunetx",
+      "values": {
+        "blur": {
+          "type": "b",
+          "value": "true"
+        },
+        "pipeline": {
+          "type": "s",
+          "value": "'pipeline_default'"
+        }
+      }
+    },
+    "org.gnome.shell.extensions.blur-my-shell.dash-to-dock": {
+      "extension": "blur-my-shell@aunetx",
+      "values": {
+        "blur": {
+          "type": "b",
+          "value": "true"
+        },
+        "brightness": {
+          "type": "d",
+          "value": "0.59999999999999998"
+        },
+        "color": {
+          "type": "(dddd)",
+          "value": "(0.0, 0.0, 0.0, 0.0)"
+        },
+        "corner-radius": {
+          "type": "i",
+          "value": "18"
+        },
+        "customize": {
+          "type": "b",
+          "value": "false"
+        },
+        "noise-amount": {
+          "type": "d",
+          "value": "0.0"
+        },
+        "noise-lightness": {
+          "type": "d",
+          "value": "0.0"
+        },
+        "override-background": {
+          "type": "b",
+          "value": "true"
+        },
+        "pipeline": {
+          "type": "s",
+          "value": "'pipeline_default_rounded'"
+        },
+        "sigma": {
+          "type": "i",
+          "value": "30"
+        },
+        "static-blur": {
+          "type": "b",
+          "value": "true"
+        },
+        "style-dash-to-dock": {
+          "type": "i",
+          "value": "0"
+        },
+        "unblur-in-overview": {
+          "type": "b",
+          "value": "false"
+        }
+      }
+    },
+    "org.gnome.shell.extensions.blur-my-shell.dash-to-panel": {
+      "extension": "blur-my-shell@aunetx",
+      "values": {
+        "blur-original-panel": {
+          "type": "b",
+          "value": "true"
+        }
+      }
+    },
+    "org.gnome.shell.extensions.blur-my-shell.hidetopbar": {
+      "extension": "blur-my-shell@aunetx",
+      "values": {
+        "compatibility": {
+          "type": "b",
+          "value": "false"
+        }
+      }
+    },
+    "org.gnome.shell.extensions.blur-my-shell.lockscreen": {
+      "extension": "blur-my-shell@aunetx",
+      "values": {
+        "blur": {
+          "type": "b",
+          "value": "true"
+        },
+        "brightness": {
+          "type": "d",
+          "value": "0.59999999999999998"
+        },
+        "color": {
+          "type": "(dddd)",
+          "value": "(0.0, 0.0, 0.0, 0.0)"
+        },
+        "customize": {
+          "type": "b",
+          "value": "false"
+        },
+        "noise-amount": {
+          "type": "d",
+          "value": "0.0"
+        },
+        "noise-lightness": {
+          "type": "d",
+          "value": "0.0"
+        },
+        "pipeline": {
+          "type": "s",
+          "value": "'pipeline_default'"
+        },
+        "sigma": {
+          "type": "i",
+          "value": "30"
+        }
+      }
+    },
+    "org.gnome.shell.extensions.blur-my-shell.overview": {
+      "extension": "blur-my-shell@aunetx",
+      "values": {
+        "blur": {
+          "type": "b",
+          "value": "true"
+        },
+        "brightness": {
+          "type": "d",
+          "value": "0.59999999999999998"
+        },
+        "color": {
+          "type": "(dddd)",
+          "value": "(0.0, 0.0, 0.0, 0.0)"
+        },
+        "customize": {
+          "type": "b",
+          "value": "false"
+        },
+        "noise-amount": {
+          "type": "d",
+          "value": "0.0"
+        },
+        "noise-lightness": {
+          "type": "d",
+          "value": "0.0"
+        },
+        "pipeline": {
+          "type": "s",
+          "value": "'overview_soft_glass'"
+        },
+        "sigma": {
+          "type": "i",
+          "value": "30"
+        },
+        "style-components": {
+          "type": "i",
+          "value": "3"
+        }
+      }
+    },
+    "org.gnome.shell.extensions.blur-my-shell.panel": {
+      "extension": "blur-my-shell@aunetx",
+      "values": {
+        "blur": {
+          "type": "b",
+          "value": "true"
+        },
+        "brightness": {
+          "type": "d",
+          "value": "0.59999999999999998"
+        },
+        "color": {
+          "type": "(dddd)",
+          "value": "(0.0, 0.0, 0.0, 0.0)"
+        },
+        "corner-radius": {
+          "type": "i",
+          "value": "12"
+        },
+        "customize": {
+          "type": "b",
+          "value": "true"
+        },
+        "force-light-text": {
+          "type": "b",
+          "value": "false"
+        },
+        "gradient-panel": {
+          "type": "b",
+          "value": "false"
+        },
+        "gradient-panel-mode": {
+          "type": "i",
+          "value": "0"
+        },
+        "noise-amount": {
+          "type": "d",
+          "value": "0.0"
+        },
+        "noise-lightness": {
+          "type": "d",
+          "value": "0.0"
+        },
+        "override-background": {
+          "type": "b",
+          "value": "false"
+        },
+        "override-background-dynamically": {
+          "type": "b",
+          "value": "false"
+        },
+        "override-background-dynamically-mode": {
+          "type": "i",
+          "value": "1"
+        },
+        "pipeline": {
+          "type": "s",
+          "value": "'panel_rounded_12'"
+        },
+        "sigma": {
+          "type": "i",
+          "value": "30"
+        },
+        "static-blur": {
+          "type": "b",
+          "value": "false"
+        },
+        "style-panel": {
+          "type": "i",
+          "value": "0"
+        },
+        "unblur-in-overview": {
+          "type": "b",
+          "value": "true"
+        }
+      }
+    },
+    "org.gnome.shell.extensions.blur-my-shell.popup": {
+      "extension": "blur-my-shell@aunetx",
+      "values": {
+        "blur": {
+          "type": "b",
+          "value": "true"
+        },
+        "brightness": {
+          "type": "d",
+          "value": "0.59999999999999998"
+        },
+        "corner-radius": {
+          "type": "i",
+          "value": "12"
+        },
+        "dialog-corner-radius": {
+          "type": "i",
+          "value": "12"
+        },
+        "menu-corner-radius": {
+          "type": "i",
+          "value": "12"
+        },
+        "notification-corner-radius": {
+          "type": "i",
+          "value": "12"
+        },
+        "osd-corner-radius": {
+          "type": "i",
+          "value": "12"
+        },
+        "osk-corner-radius": {
+          "type": "i",
+          "value": "0"
+        },
+        "override-background": {
+          "type": "b",
+          "value": "true"
+        },
+        "pipeline": {
+          "type": "s",
+          "value": "'pipeline_default'"
+        },
+        "preserve-shell-theme": {
+          "type": "b",
+          "value": "true"
+        },
+        "quick-settings-corner-radius": {
+          "type": "i",
+          "value": "12"
+        },
+        "sigma": {
+          "type": "i",
+          "value": "30"
+        },
+        "static-blur": {
+          "type": "b",
+          "value": "false"
+        },
+        "style-popup": {
+          "type": "i",
+          "value": "2"
+        }
+      }
+    },
+    "org.gnome.shell.extensions.blur-my-shell.screenshot": {
+      "extension": "blur-my-shell@aunetx",
+      "values": {
+        "blur": {
+          "type": "b",
+          "value": "true"
+        },
+        "brightness": {
+          "type": "d",
+          "value": "0.59999999999999998"
+        },
+        "color": {
+          "type": "(dddd)",
+          "value": "(0.0, 0.0, 0.0, 0.0)"
+        },
+        "customize": {
+          "type": "b",
+          "value": "false"
+        },
+        "noise-amount": {
+          "type": "d",
+          "value": "0.0"
+        },
+        "noise-lightness": {
+          "type": "d",
+          "value": "0.0"
+        },
+        "pipeline": {
+          "type": "s",
+          "value": "'pipeline_default'"
+        },
+        "sigma": {
+          "type": "i",
+          "value": "30"
+        }
+      }
+    },
+    "org.gnome.shell.extensions.blur-my-shell.window-list": {
+      "extension": "blur-my-shell@aunetx",
+      "values": {
+        "blur": {
+          "type": "b",
+          "value": "true"
+        },
+        "brightness": {
+          "type": "d",
+          "value": "0.59999999999999998"
+        },
+        "color": {
+          "type": "(dddd)",
+          "value": "(0.0, 0.0, 0.0, 0.0)"
+        },
+        "customize": {
+          "type": "b",
+          "value": "false"
+        },
+        "noise-amount": {
+          "type": "d",
+          "value": "0.0"
+        },
+        "noise-lightness": {
+          "type": "d",
+          "value": "0.0"
+        },
+        "pipeline": {
+          "type": "s",
+          "value": "'pipeline_default'"
+        },
+        "sigma": {
+          "type": "i",
+          "value": "30"
+        }
+      }
+    },
+    "org.gnome.shell.extensions.dash-to-panel": {
+      "extension": "dash-to-panel@jderose9.github.com",
+      "values": {
+        "activate-single-window": {
+          "type": "b",
+          "value": "true"
+        },
+        "animate-app-switch": {
+          "type": "b",
+          "value": "true"
+        },
+        "animate-appicon-hover": {
+          "type": "b",
+          "value": "false"
+        },
+        "animate-appicon-hover-animation-convexity": {
+          "type": "a{sd}",
+          "value": "{'RIPPLE': 2.0, 'PLANK': 1.0}"
+        },
+        "animate-appicon-hover-animation-duration": {
+          "type": "a{su}",
+          "value": "{'SIMPLE': uint32 160, 'RIPPLE': 130, 'PLANK': 100}"
+        },
+        "animate-appicon-hover-animation-extent": {
+          "type": "a{si}",
+          "value": "{'RIPPLE': 4, 'PLANK': 4}"
+        },
+        "animate-appicon-hover-animation-rotation": {
+          "type": "a{si}",
+          "value": "{'SIMPLE': 0, 'RIPPLE': 10, 'PLANK': 0}"
+        },
+        "animate-appicon-hover-animation-travel": {
+          "type": "a{sd}",
+          "value": "{'SIMPLE': 0.29999999999999999, 'RIPPLE': 0.40000000000000002, 'PLANK': 0.0}"
+        },
+        "animate-appicon-hover-animation-type": {
+          "type": "s",
+          "value": "'SIMPLE'"
+        },
+        "animate-appicon-hover-animation-zoom": {
+          "type": "a{sd}",
+          "value": "{'SIMPLE': 1.0, 'RIPPLE': 1.25, 'PLANK': 2.0}"
+        },
+        "animate-window-launch": {
+          "type": "b",
+          "value": "true"
+        },
+        "appicon-margin": {
+          "type": "i",
+          "value": "8"
+        },
+        "appicon-padding": {
+          "type": "i",
+          "value": "4"
+        },
+        "appicon-style": {
+          "type": "s",
+          "value": "'NORMAL'"
+        },
+        "click-action": {
+          "type": "s",
+          "value": "'CYCLE-MIN'"
+        },
+        "context-menu-entries": {
+          "type": "s",
+          "value": "'\\n        [\\n          {\\n            \"title\": \"Terminal\",\\n            \"cmd\": \"TERMINALSETTINGS\"\\n          },\\n          {\\n            \"title\": \"System monitor\",\\n            \"cmd\": \"gnome-system-monitor\"\\n          },\\n          {\\n            \"title\": \"Files\",\\n            \"cmd\": \"nautilus\"\\n          },\\n          {\\n            \"title\": \"Extensions\",\\n            \"cmd\": \"gnome-extensions-app\"\\n          }\\n        ]'"
+        },
+        "customize-click": {
+          "type": "b",
+          "value": "true"
+        },
+        "desktop-line-custom-color": {
+          "type": "s",
+          "value": "'rgba(0,0,0,0)'"
+        },
+        "desktop-line-use-custom-color": {
+          "type": "b",
+          "value": "true"
+        },
+        "dot-color-1": {
+          "type": "s",
+          "value": "'rgba(0,0,0,0)'"
+        },
+        "dot-color-2": {
+          "type": "s",
+          "value": "'rgba(0,0,0,0)'"
+        },
+        "dot-color-3": {
+          "type": "s",
+          "value": "'rgba(0,0,0,0)'"
+        },
+        "dot-color-4": {
+          "type": "s",
+          "value": "'rgba(0,0,0,0)'"
+        },
+        "dot-color-dominant": {
+          "type": "b",
+          "value": "false"
+        },
+        "dot-color-override": {
+          "type": "b",
+          "value": "true"
+        },
+        "dot-color-unfocused-1": {
+          "type": "s",
+          "value": "'rgba(220,225,235,0.7)'"
+        },
+        "dot-color-unfocused-2": {
+          "type": "s",
+          "value": "'rgba(220,225,235,0.7)'"
+        },
+        "dot-color-unfocused-3": {
+          "type": "s",
+          "value": "'rgba(220,225,235,0.7)'"
+        },
+        "dot-color-unfocused-4": {
+          "type": "s",
+          "value": "'rgba(220,225,235,0.7)'"
+        },
+        "dot-color-unfocused-different": {
+          "type": "b",
+          "value": "true"
+        },
+        "dot-position": {
+          "type": "s",
+          "value": "'BOTTOM'"
+        },
+        "dot-size": {
+          "type": "i",
+          "value": "2"
+        },
+        "dot-style-focused": {
+          "type": "s",
+          "value": "'METRO'"
+        },
+        "dot-style-unfocused": {
+          "type": "s",
+          "value": "'DASHES'"
+        },
+        "enter-peek-mode-timeout": {
+          "type": "i",
+          "value": "500"
+        },
+        "extension-version": {
+          "type": "i",
+          "value": "74"
+        },
+        "focus-highlight": {
+          "type": "b",
+          "value": "true"
+        },
+        "focus-highlight-color": {
+          "type": "s",
+          "value": "'#EEEEEE'"
+        },
+        "focus-highlight-dominant": {
+          "type": "b",
+          "value": "false"
+        },
+        "focus-highlight-opacity": {
+          "type": "i",
+          "value": "25"
+        },
+        "global-border-radius": {
+          "type": "i",
+          "value": "3"
+        },
+        "group-apps": {
+          "type": "b",
+          "value": "true"
+        },
+        "group-apps-label-font-color": {
+          "type": "s",
+          "value": "'#dddddd'"
+        },
+        "group-apps-label-font-color-minimized": {
+          "type": "s",
+          "value": "'#dddddd'"
+        },
+        "group-apps-label-font-size": {
+          "type": "i",
+          "value": "14"
+        },
+        "group-apps-label-font-weight": {
+          "type": "s",
+          "value": "'inherit'"
+        },
+        "group-apps-label-max-width": {
+          "type": "i",
+          "value": "160"
+        },
+        "group-apps-underline-unfocused": {
+          "type": "b",
+          "value": "true"
+        },
+        "group-apps-use-fixed-width": {
+          "type": "b",
+          "value": "true"
+        },
+        "group-apps-use-launchers": {
+          "type": "b",
+          "value": "false"
+        },
+        "hide-overview-on-startup": {
+          "type": "b",
+          "value": "false"
+        },
+        "highlight-appicon-hover": {
+          "type": "b",
+          "value": "true"
+        },
+        "highlight-appicon-hover-background-color": {
+          "type": "s",
+          "value": "'rgba(238, 238, 236, 0.1)'"
+        },
+        "highlight-appicon-hover-border-radius": {
+          "type": "i",
+          "value": "10"
+        },
+        "highlight-appicon-pressed-background-color": {
+          "type": "s",
+          "value": "'rgba(238, 238, 236, 0.18)'"
+        },
+        "hot-keys": {
+          "type": "b",
+          "value": "false"
+        },
+        "hotkey-prefix-text": {
+          "type": "s",
+          "value": "'Super'"
+        },
+        "hotkeys-overlay-combo": {
+          "type": "s",
+          "value": "'TEMPORARILY'"
+        },
+        "intellihide": {
+          "type": "b",
+          "value": "false"
+        },
+        "intellihide-animation-time": {
+          "type": "i",
+          "value": "200"
+        },
+        "intellihide-behaviour": {
+          "type": "s",
+          "value": "'FOCUSED_WINDOWS'"
+        },
+        "intellihide-close-delay": {
+          "type": "i",
+          "value": "400"
+        },
+        "intellihide-enable-start-delay": {
+          "type": "i",
+          "value": "2000"
+        },
+        "intellihide-hide-from-monitor-windows": {
+          "type": "b",
+          "value": "false"
+        },
+        "intellihide-hide-from-windows": {
+          "type": "b",
+          "value": "false"
+        },
+        "intellihide-key-toggle": {
+          "type": "as",
+          "value": "['<Super>i']"
+        },
+        "intellihide-key-toggle-text": {
+          "type": "s",
+          "value": "'<Super>i'"
+        },
+        "intellihide-only-secondary": {
+          "type": "b",
+          "value": "false"
+        },
+        "intellihide-pressure-threshold": {
+          "type": "i",
+          "value": "100"
+        },
+        "intellihide-pressure-time": {
+          "type": "i",
+          "value": "1000"
+        },
+        "intellihide-reveal-delay": {
+          "type": "i",
+          "value": "0"
+        },
+        "intellihide-revealed-hover": {
+          "type": "b",
+          "value": "true"
+        },
+        "intellihide-revealed-hover-limit-size": {
+          "type": "b",
+          "value": "false"
+        },
+        "intellihide-show-in-fullscreen": {
+          "type": "b",
+          "value": "false"
+        },
+        "intellihide-show-on-notification": {
+          "type": "b",
+          "value": "false"
+        },
+        "intellihide-use-pointer": {
+          "type": "b",
+          "value": "true"
+        },
+        "intellihide-use-pointer-limit-size": {
+          "type": "b",
+          "value": "false"
+        },
+        "intellihide-use-pressure": {
+          "type": "b",
+          "value": "false"
+        },
+        "isolate-monitors": {
+          "type": "b",
+          "value": "false"
+        },
+        "isolate-monitors-with-single-panel": {
+          "type": "b",
+          "value": "false"
+        },
+        "isolate-workspaces": {
+          "type": "b",
+          "value": "true"
+        },
+        "leave-timeout": {
+          "type": "i",
+          "value": "100"
+        },
+        "leftbox-padding": {
+          "type": "i",
+          "value": "-1"
+        },
+        "leftbox-size": {
+          "type": "i",
+          "value": "0"
+        },
+        "middle-click-action": {
+          "type": "s",
+          "value": "'LAUNCH'"
+        },
+        "minimize-shift": {
+          "type": "b",
+          "value": "true"
+        },
+        "multi-monitors": {
+          "type": "b",
+          "value": "true"
+        },
+        "overlay-timeout": {
+          "type": "i",
+          "value": "750"
+        },
+        "overview-click-to-exit": {
+          "type": "b",
+          "value": "false"
+        },
+        "panel-anchors": {
+          "type": "s",
+          "value": "'{}'"
+        },
+        "panel-context-menu-commands": {
+          "type": "as",
+          "value": "@as []"
+        },
+        "panel-context-menu-titles": {
+          "type": "as",
+          "value": "@as []"
+        },
+        "panel-element-positions": {
+          "type": "s",
+          "value": "'{\"0\":[{\"element\":\"showAppsButton\",\"visible\":false,\"position\":\"stackedBR\"},{\"element\":\"activitiesButton\",\"visible\":false,\"position\":\"stackedBR\"},{\"element\":\"leftBox\",\"visible\":true,\"position\":\"stackedTL\"},{\"element\":\"taskbar\",\"visible\":true,\"position\":\"centerMonitor\"},{\"element\":\"centerBox\",\"visible\":true,\"position\":\"stackedBR\"},{\"element\":\"rightBox\",\"visible\":true,\"position\":\"stackedBR\"},{\"element\":\"systemMenu\",\"visible\":true,\"position\":\"stackedBR\"},{\"element\":\"dateMenu\",\"visible\":true,\"position\":\"stackedBR\"},{\"element\":\"desktopButton\",\"visible\":true,\"position\":\"stackedBR\"}],\"1\":[{\"element\":\"showAppsButton\",\"visible\":false,\"position\":\"stackedBR\"},{\"element\":\"activitiesButton\",\"visible\":false,\"position\":\"stackedBR\"},{\"element\":\"leftBox\",\"visible\":true,\"position\":\"stackedTL\"},{\"element\":\"taskbar\",\"visible\":true,\"position\":\"centerMonitor\"},{\"element\":\"centerBox\",\"visible\":true,\"position\":\"stackedBR\"},{\"element\":\"rightBox\",\"visible\":true,\"position\":\"stackedBR\"},{\"element\":\"systemMenu\",\"visible\":true,\"position\":\"stackedBR\"},{\"element\":\"dateMenu\",\"visible\":true,\"position\":\"stackedBR\"},{\"element\":\"desktopButton\",\"visible\":true,\"position\":\"stackedBR\"}],\"2\":[{\"element\":\"showAppsButton\",\"visible\":false,\"position\":\"stackedBR\"},{\"element\":\"activitiesButton\",\"visible\":false,\"position\":\"stackedBR\"},{\"element\":\"leftBox\",\"visible\":true,\"position\":\"stackedTL\"},{\"element\":\"taskbar\",\"visible\":true,\"position\":\"centerMonitor\"},{\"element\":\"centerBox\",\"visible\":true,\"position\":\"stackedBR\"},{\"element\":\"rightBox\",\"visible\":true,\"position\":\"stackedBR\"},{\"element\":\"systemMenu\",\"visible\":true,\"position\":\"stackedBR\"},{\"element\":\"dateMenu\",\"visible\":true,\"position\":\"stackedBR\"},{\"element\":\"desktopButton\",\"visible\":true,\"position\":\"stackedBR\"}],\"3\":[{\"element\":\"showAppsButton\",\"visible\":false,\"position\":\"stackedBR\"},{\"element\":\"activitiesButton\",\"visible\":false,\"position\":\"stackedBR\"},{\"element\":\"leftBox\",\"visible\":true,\"position\":\"stackedTL\"},{\"element\":\"taskbar\",\"visible\":true,\"position\":\"centerMonitor\"},{\"element\":\"centerBox\",\"visible\":true,\"position\":\"stackedBR\"},{\"element\":\"rightBox\",\"visible\":true,\"position\":\"stackedBR\"},{\"element\":\"systemMenu\",\"visible\":true,\"position\":\"stackedBR\"},{\"element\":\"dateMenu\",\"visible\":true,\"position\":\"stackedBR\"},{\"element\":\"desktopButton\",\"visible\":true,\"position\":\"stackedBR\"}],\"4\":[{\"element\":\"showAppsButton\",\"visible\":false,\"position\":\"stackedBR\"},{\"element\":\"activitiesButton\",\"visible\":false,\"position\":\"stackedBR\"},{\"element\":\"leftBox\",\"visible\":true,\"position\":\"stackedTL\"},{\"element\":\"taskbar\",\"visible\":true,\"position\":\"centerMonitor\"},{\"element\":\"centerBox\",\"visible\":true,\"position\":\"stackedBR\"},{\"element\":\"rightBox\",\"visible\":true,\"position\":\"stackedBR\"},{\"element\":\"systemMenu\",\"visible\":true,\"position\":\"stackedBR\"},{\"element\":\"dateMenu\",\"visible\":true,\"position\":\"stackedBR\"},{\"element\":\"desktopButton\",\"visible\":true,\"position\":\"stackedBR\"}],\"5\":[{\"element\":\"showAppsButton\",\"visible\":false,\"position\":\"stackedBR\"},{\"element\":\"activitiesButton\",\"visible\":false,\"position\":\"stackedBR\"},{\"element\":\"leftBox\",\"visible\":true,\"position\":\"stackedTL\"},{\"element\":\"taskbar\",\"visible\":true,\"position\":\"centerMonitor\"},{\"element\":\"centerBox\",\"visible\":true,\"position\":\"stackedBR\"},{\"element\":\"rightBox\",\"visible\":true,\"position\":\"stackedBR\"},{\"element\":\"systemMenu\",\"visible\":true,\"position\":\"stackedBR\"},{\"element\":\"dateMenu\",\"visible\":true,\"position\":\"stackedBR\"},{\"element\":\"desktopButton\",\"visible\":true,\"position\":\"stackedBR\"}],\"6\":[{\"element\":\"showAppsButton\",\"visible\":false,\"position\":\"stackedBR\"},{\"element\":\"activitiesButton\",\"visible\":false,\"position\":\"stackedBR\"},{\"element\":\"leftBox\",\"visible\":true,\"position\":\"stackedTL\"},{\"element\":\"taskbar\",\"visible\":true,\"position\":\"centerMonitor\"},{\"element\":\"centerBox\",\"visible\":true,\"position\":\"stackedBR\"},{\"element\":\"rightBox\",\"visible\":true,\"position\":\"stackedBR\"},{\"element\":\"systemMenu\",\"visible\":true,\"position\":\"stackedBR\"},{\"element\":\"dateMenu\",\"visible\":true,\"position\":\"stackedBR\"},{\"element\":\"desktopButton\",\"visible\":true,\"position\":\"stackedBR\"}],\"7\":[{\"element\":\"showAppsButton\",\"visible\":false,\"position\":\"stackedBR\"},{\"element\":\"activitiesButton\",\"visible\":false,\"position\":\"stackedBR\"},{\"element\":\"leftBox\",\"visible\":true,\"position\":\"stackedTL\"},{\"element\":\"taskbar\",\"visible\":true,\"position\":\"centerMonitor\"},{\"element\":\"centerBox\",\"visible\":true,\"position\":\"stackedBR\"},{\"element\":\"rightBox\",\"visible\":true,\"position\":\"stackedBR\"},{\"element\":\"systemMenu\",\"visible\":true,\"position\":\"stackedBR\"},{\"element\":\"dateMenu\",\"visible\":true,\"position\":\"stackedBR\"},{\"element\":\"desktopButton\",\"visible\":true,\"position\":\"stackedBR\"}],\"8\":[{\"element\":\"showAppsButton\",\"visible\":false,\"position\":\"stackedBR\"},{\"element\":\"activitiesButton\",\"visible\":false,\"position\":\"stackedBR\"},{\"element\":\"leftBox\",\"visible\":true,\"position\":\"stackedTL\"},{\"element\":\"taskbar\",\"visible\":true,\"position\":\"centerMonitor\"},{\"element\":\"centerBox\",\"visible\":true,\"position\":\"stackedBR\"},{\"element\":\"rightBox\",\"visible\":true,\"position\":\"stackedBR\"},{\"element\":\"systemMenu\",\"visible\":true,\"position\":\"stackedBR\"},{\"element\":\"dateMenu\",\"visible\":true,\"position\":\"stackedBR\"},{\"element\":\"desktopButton\",\"visible\":true,\"position\":\"stackedBR\"}],\"9\":[{\"element\":\"showAppsButton\",\"visible\":false,\"position\":\"stackedBR\"},{\"element\":\"activitiesButton\",\"visible\":false,\"position\":\"stackedBR\"},{\"element\":\"leftBox\",\"visible\":true,\"position\":\"stackedTL\"},{\"element\":\"taskbar\",\"visible\":true,\"position\":\"centerMonitor\"},{\"element\":\"centerBox\",\"visible\":true,\"position\":\"stackedBR\"},{\"element\":\"rightBox\",\"visible\":true,\"position\":\"stackedBR\"},{\"element\":\"systemMenu\",\"visible\":true,\"position\":\"stackedBR\"},{\"element\":\"dateMenu\",\"visible\":true,\"position\":\"stackedBR\"},{\"element\":\"desktopButton\",\"visible\":true,\"position\":\"stackedBR\"}],\"10\":[{\"element\":\"showAppsButton\",\"visible\":false,\"position\":\"stackedBR\"},{\"element\":\"activitiesButton\",\"visible\":false,\"position\":\"stackedBR\"},{\"element\":\"leftBox\",\"visible\":true,\"position\":\"stackedTL\"},{\"element\":\"taskbar\",\"visible\":true,\"position\":\"centerMonitor\"},{\"element\":\"centerBox\",\"visible\":true,\"position\":\"stackedBR\"},{\"element\":\"rightBox\",\"visible\":true,\"position\":\"stackedBR\"},{\"element\":\"systemMenu\",\"visible\":true,\"position\":\"stackedBR\"},{\"element\":\"dateMenu\",\"visible\":true,\"position\":\"stackedBR\"},{\"element\":\"desktopButton\",\"visible\":true,\"position\":\"stackedBR\"}],\"11\":[{\"element\":\"showAppsButton\",\"visible\":false,\"position\":\"stackedBR\"},{\"element\":\"activitiesButton\",\"visible\":false,\"position\":\"stackedBR\"},{\"element\":\"leftBox\",\"visible\":true,\"position\":\"stackedTL\"},{\"element\":\"taskbar\",\"visible\":true,\"position\":\"centerMonitor\"},{\"element\":\"centerBox\",\"visible\":true,\"position\":\"stackedBR\"},{\"element\":\"rightBox\",\"visible\":true,\"position\":\"stackedBR\"},{\"element\":\"systemMenu\",\"visible\":true,\"position\":\"stackedBR\"},{\"element\":\"dateMenu\",\"visible\":true,\"position\":\"stackedBR\"},{\"element\":\"desktopButton\",\"visible\":true,\"position\":\"stackedBR\"}],\"12\":[{\"element\":\"showAppsButton\",\"visible\":false,\"position\":\"stackedBR\"},{\"element\":\"activitiesButton\",\"visible\":false,\"position\":\"stackedBR\"},{\"element\":\"leftBox\",\"visible\":true,\"position\":\"stackedTL\"},{\"element\":\"taskbar\",\"visible\":true,\"position\":\"centerMonitor\"},{\"element\":\"centerBox\",\"visible\":true,\"position\":\"stackedBR\"},{\"element\":\"rightBox\",\"visible\":true,\"position\":\"stackedBR\"},{\"element\":\"systemMenu\",\"visible\":true,\"position\":\"stackedBR\"},{\"element\":\"dateMenu\",\"visible\":true,\"position\":\"stackedBR\"},{\"element\":\"desktopButton\",\"visible\":true,\"position\":\"stackedBR\"}],\"13\":[{\"element\":\"showAppsButton\",\"visible\":false,\"position\":\"stackedBR\"},{\"element\":\"activitiesButton\",\"visible\":false,\"position\":\"stackedBR\"},{\"element\":\"leftBox\",\"visible\":true,\"position\":\"stackedTL\"},{\"element\":\"taskbar\",\"visible\":true,\"position\":\"centerMonitor\"},{\"element\":\"centerBox\",\"visible\":true,\"position\":\"stackedBR\"},{\"element\":\"rightBox\",\"visible\":true,\"position\":\"stackedBR\"},{\"element\":\"systemMenu\",\"visible\":true,\"position\":\"stackedBR\"},{\"element\":\"dateMenu\",\"visible\":true,\"position\":\"stackedBR\"},{\"element\":\"desktopButton\",\"visible\":true,\"position\":\"stackedBR\"}],\"14\":[{\"element\":\"showAppsButton\",\"visible\":false,\"position\":\"stackedBR\"},{\"element\":\"activitiesButton\",\"visible\":false,\"position\":\"stackedBR\"},{\"element\":\"leftBox\",\"visible\":true,\"position\":\"stackedTL\"},{\"element\":\"taskbar\",\"visible\":true,\"position\":\"centerMonitor\"},{\"element\":\"centerBox\",\"visible\":true,\"position\":\"stackedBR\"},{\"element\":\"rightBox\",\"visible\":true,\"position\":\"stackedBR\"},{\"element\":\"systemMenu\",\"visible\":true,\"position\":\"stackedBR\"},{\"element\":\"dateMenu\",\"visible\":true,\"position\":\"stackedBR\"},{\"element\":\"desktopButton\",\"visible\":true,\"position\":\"stackedBR\"}],\"15\":[{\"element\":\"showAppsButton\",\"visible\":false,\"position\":\"stackedBR\"},{\"element\":\"activitiesButton\",\"visible\":false,\"position\":\"stackedBR\"},{\"element\":\"leftBox\",\"visible\":true,\"position\":\"stackedTL\"},{\"element\":\"taskbar\",\"visible\":true,\"position\":\"centerMonitor\"},{\"element\":\"centerBox\",\"visible\":true,\"position\":\"stackedBR\"},{\"element\":\"rightBox\",\"visible\":true,\"position\":\"stackedBR\"},{\"element\":\"systemMenu\",\"visible\":true,\"position\":\"stackedBR\"},{\"element\":\"dateMenu\",\"visible\":true,\"position\":\"stackedBR\"},{\"element\":\"desktopButton\",\"visible\":true,\"position\":\"stackedBR\"}]}'"
+        },
+        "panel-element-positions-monitors-sync": {
+          "type": "b",
+          "value": "true"
+        },
+        "panel-lengths": {
+          "type": "s",
+          "value": "'{}'"
+        },
+        "panel-position": {
+          "type": "s",
+          "value": "'BOTTOM'"
+        },
+        "panel-positions": {
+          "type": "s",
+          "value": "'{}'"
+        },
+        "panel-side-margins": {
+          "type": "i",
+          "value": "10"
+        },
+        "panel-side-padding": {
+          "type": "i",
+          "value": "0"
+        },
+        "panel-size": {
+          "type": "i",
+          "value": "52"
+        },
+        "panel-sizes": {
+          "type": "s",
+          "value": "'{}'"
+        },
+        "panel-top-bottom-margins": {
+          "type": "i",
+          "value": "6"
+        },
+        "panel-top-bottom-padding": {
+          "type": "i",
+          "value": "0"
+        },
+        "peek-mode": {
+          "type": "b",
+          "value": "true"
+        },
+        "peek-mode-opacity": {
+          "type": "i",
+          "value": "40"
+        },
+        "preview-custom-opacity": {
+          "type": "i",
+          "value": "80"
+        },
+        "preview-middle-click-close": {
+          "type": "b",
+          "value": "true"
+        },
+        "preview-use-custom-opacity": {
+          "type": "b",
+          "value": "true"
+        },
+        "progress-show-bar": {
+          "type": "b",
+          "value": "true"
+        },
+        "progress-show-count": {
+          "type": "b",
+          "value": "true"
+        },
+        "scroll-icon-action": {
+          "type": "s",
+          "value": "'CYCLE_WINDOWS'"
+        },
+        "scroll-icon-delay": {
+          "type": "i",
+          "value": "0"
+        },
+        "scroll-panel-action": {
+          "type": "s",
+          "value": "'SWITCH_WORKSPACE'"
+        },
+        "scroll-panel-delay": {
+          "type": "i",
+          "value": "0"
+        },
+        "scroll-panel-show-ws-popup": {
+          "type": "b",
+          "value": "true"
+        },
+        "secondarymenu-contains-appmenu": {
+          "type": "b",
+          "value": "true"
+        },
+        "secondarymenu-contains-showdetails": {
+          "type": "b",
+          "value": "false"
+        },
+        "shift-click-action": {
+          "type": "s",
+          "value": "'MINIMIZE'"
+        },
+        "shift-middle-click-action": {
+          "type": "s",
+          "value": "'LAUNCH'"
+        },
+        "shortcut": {
+          "type": "as",
+          "value": "['<Super>q']"
+        },
+        "shortcut-num-keys": {
+          "type": "s",
+          "value": "'BOTH'"
+        },
+        "shortcut-overlay-on-secondary": {
+          "type": "b",
+          "value": "false"
+        },
+        "shortcut-previews": {
+          "type": "b",
+          "value": "false"
+        },
+        "shortcut-text": {
+          "type": "s",
+          "value": "'<Super>q'"
+        },
+        "shortcut-timeout": {
+          "type": "i",
+          "value": "2000"
+        },
+        "show-activities-button": {
+          "type": "b",
+          "value": "false"
+        },
+        "show-apps-button-context-menu-commands": {
+          "type": "as",
+          "value": "@as []"
+        },
+        "show-apps-button-context-menu-titles": {
+          "type": "as",
+          "value": "@as []"
+        },
+        "show-apps-icon-file": {
+          "type": "s",
+          "value": "''"
+        },
+        "show-apps-icon-side-padding": {
+          "type": "i",
+          "value": "8"
+        },
+        "show-apps-override-escape": {
+          "type": "b",
+          "value": "true"
+        },
+        "show-favorites": {
+          "type": "b",
+          "value": "true"
+        },
+        "show-favorites-all-monitors": {
+          "type": "b",
+          "value": "true"
+        },
+        "show-running-apps": {
+          "type": "b",
+          "value": "true"
+        },
+        "show-showdesktop-delay": {
+          "type": "i",
+          "value": "1000"
+        },
+        "show-showdesktop-hover": {
+          "type": "b",
+          "value": "false"
+        },
+        "show-showdesktop-time": {
+          "type": "i",
+          "value": "300"
+        },
+        "show-tooltip": {
+          "type": "b",
+          "value": "true"
+        },
+        "show-window-previews": {
+          "type": "b",
+          "value": "true"
+        },
+        "show-window-previews-timeout": {
+          "type": "i",
+          "value": "400"
+        },
+        "showdesktop-button-width": {
+          "type": "i",
+          "value": "12"
+        },
+        "status-icon-padding": {
+          "type": "i",
+          "value": "-1"
+        },
+        "stockgs-force-hotcorner": {
+          "type": "b",
+          "value": "true"
+        },
+        "stockgs-keep-dash": {
+          "type": "b",
+          "value": "false"
+        },
+        "stockgs-keep-top-panel": {
+          "type": "b",
+          "value": "false"
+        },
+        "stockgs-panelbtn-click-only": {
+          "type": "b",
+          "value": "false"
+        },
+        "taskbar-locked": {
+          "type": "b",
+          "value": "false"
+        },
+        "trans-bg-color": {
+          "type": "s",
+          "value": "'#78869b'"
+        },
+        "trans-border-custom-color": {
+          "type": "s",
+          "value": "'rgba(200,200,200,0.2)'"
+        },
+        "trans-border-use-custom-color": {
+          "type": "b",
+          "value": "false"
+        },
+        "trans-border-width": {
+          "type": "i",
+          "value": "1"
+        },
+        "trans-dynamic-anim-target": {
+          "type": "d",
+          "value": "0.80000000000000004"
+        },
+        "trans-dynamic-anim-time": {
+          "type": "i",
+          "value": "300"
+        },
+        "trans-dynamic-behavior": {
+          "type": "s",
+          "value": "'ALL_WINDOWS'"
+        },
+        "trans-dynamic-distance": {
+          "type": "i",
+          "value": "20"
+        },
+        "trans-gradient-bottom-color": {
+          "type": "s",
+          "value": "'#000'"
+        },
+        "trans-gradient-bottom-opacity": {
+          "type": "d",
+          "value": "0.20000000000000001"
+        },
+        "trans-gradient-top-color": {
+          "type": "s",
+          "value": "'#000'"
+        },
+        "trans-gradient-top-opacity": {
+          "type": "d",
+          "value": "0.0"
+        },
+        "trans-panel-opacity": {
+          "type": "d",
+          "value": "0.25"
+        },
+        "trans-use-border": {
+          "type": "b",
+          "value": "false"
+        },
+        "trans-use-custom-bg": {
+          "type": "b",
+          "value": "true"
+        },
+        "trans-use-custom-gradient": {
+          "type": "b",
+          "value": "false"
+        },
+        "trans-use-custom-opacity": {
+          "type": "b",
+          "value": "true"
+        },
+        "trans-use-dynamic-opacity": {
+          "type": "b",
+          "value": "false"
+        },
+        "tray-padding": {
+          "type": "i",
+          "value": "-1"
+        },
+        "tray-size": {
+          "type": "i",
+          "value": "0"
+        },
+        "window-preview-animation-time": {
+          "type": "i",
+          "value": "260"
+        },
+        "window-preview-aspect-ratio-x": {
+          "type": "i",
+          "value": "16"
+        },
+        "window-preview-aspect-ratio-y": {
+          "type": "i",
+          "value": "9"
+        },
+        "window-preview-custom-icon-size": {
+          "type": "i",
+          "value": "16"
+        },
+        "window-preview-fixed-x": {
+          "type": "b",
+          "value": "false"
+        },
+        "window-preview-fixed-y": {
+          "type": "b",
+          "value": "true"
+        },
+        "window-preview-hide-immediate-click": {
+          "type": "b",
+          "value": "false"
+        },
+        "window-preview-manual-styling": {
+          "type": "b",
+          "value": "false"
+        },
+        "window-preview-padding": {
+          "type": "i",
+          "value": "8"
+        },
+        "window-preview-show-title": {
+          "type": "b",
+          "value": "true"
+        },
+        "window-preview-size": {
+          "type": "i",
+          "value": "240"
+        },
+        "window-preview-title-font-color": {
+          "type": "s",
+          "value": "'#dddddd'"
+        },
+        "window-preview-title-font-size": {
+          "type": "i",
+          "value": "14"
+        },
+        "window-preview-title-font-weight": {
+          "type": "s",
+          "value": "'inherit'"
+        },
+        "window-preview-title-position": {
+          "type": "s",
+          "value": "'TOP'"
+        },
+        "window-preview-use-custom-icon-size": {
+          "type": "b",
+          "value": "false"
+        },
+        "primary-monitor": {
+          "type": "s",
+          "value": "'0'"
+        }
+      }
+    },
+    "org.gnome.shell.extensions.rounded-window-corners-reborn": {
+      "extension": "rounded-window-corners@fxgn",
+      "values": {
+        "blacklist": {
+          "type": "as",
+          "value": "@as []"
+        },
+        "border-width": {
+          "type": "i",
+          "value": "1"
+        },
+        "custom-rounded-corner-settings": {
+          "type": "a{sv}",
+          "value": "@a{sv} {}"
+        },
+        "debug-mode": {
+          "type": "b",
+          "value": "false"
+        },
+        "focused-shadow": {
+          "type": "a{si}",
+          "value": "{'horizontalOffset': 0, 'verticalOffset': 4, 'blurOffset': 24, 'spreadRadius': 0, 'opacity': 30}"
+        },
+        "global-rounded-corner-settings": {
+          "type": "a{sv}",
+          "value": "{'padding': <{'left': uint32 1, 'right': 1, 'top': 1, 'bottom': 1}>, 'keepRoundedCorners': <{'maximized': false, 'fullscreen': false}>, 'borderRadius': <uint32 12>, 'smoothing': <0.0>, 'borderColor': <(1.0, 1.0, 1.0, 0.12)>, 'enabled': <true>}"
+        },
+        "keep-shadow-for-maximized-fullscreen": {
+          "type": "b",
+          "value": "false"
+        },
+        "settings-version": {
+          "type": "u",
+          "value": "uint32 9"
+        },
+        "skip-libadwaita-app": {
+          "type": "b",
+          "value": "true"
+        },
+        "skip-libhandy-app": {
+          "type": "b",
+          "value": "true"
+        },
+        "tweak-kitty-terminal": {
+          "type": "b",
+          "value": "false"
+        },
+        "unfocused-shadow": {
+          "type": "a{si}",
+          "value": "{'horizontalOffset': 0, 'verticalOffset': 2, 'blurOffset': 14, 'spreadRadius': 0, 'opacity': 18}"
+        },
+        "whitelist": {
+          "type": "b",
+          "value": "false"
+        }
+      }
+    },
+    "org.gnome.shell.extensions.system-monitor-panel": {
+      "extension": "system-monitor-panel@naimur",
+      "values": {
+        "network-unit": {
+          "type": "s",
+          "value": "'bytes'"
+        },
+        "panel-order": {
+          "type": "as",
+          "value": "['cpu', 'memory', 'gpu', 'disk', 'temperature', 'network']"
+        },
+        "panel-position": {
+          "type": "s",
+          "value": "'far-left'"
+        },
+        "refresh-interval": {
+          "type": "i",
+          "value": "2"
+        },
+        "show-cpu": {
+          "type": "b",
+          "value": "true"
+        },
+        "show-cpu-card": {
+          "type": "b",
+          "value": "true"
+        },
+        "show-disk": {
+          "type": "b",
+          "value": "false"
+        },
+        "show-disk-card": {
+          "type": "b",
+          "value": "false"
+        },
+        "show-external-disks": {
+          "type": "b",
+          "value": "false"
+        },
+        "show-gpu": {
+          "type": "b",
+          "value": "false"
+        },
+        "show-gpu-card": {
+          "type": "b",
+          "value": "false"
+        },
+        "show-icons": {
+          "type": "b",
+          "value": "true"
+        },
+        "show-memory": {
+          "type": "b",
+          "value": "true"
+        },
+        "show-memory-card": {
+          "type": "b",
+          "value": "true"
+        },
+        "show-network": {
+          "type": "b",
+          "value": "false"
+        },
+        "show-network-card": {
+          "type": "b",
+          "value": "false"
+        },
+        "show-temperature": {
+          "type": "b",
+          "value": "false"
+        },
+        "show-temperature-card": {
+          "type": "b",
+          "value": "false"
+        },
+        "temperature-unit": {
+          "type": "s",
+          "value": "'celsius'"
+        }
+      }
+    },
+    "org.gnome.desktop.interface": {
+      "values": {
+        "accent-color": {
+          "type": "s",
+          "value": "'blue'"
+        },
+        "color-scheme": {
+          "type": "s",
+          "value": "'prefer-dark'"
+        },
+        "cursor-size": {
+          "type": "i",
+          "value": "24"
+        },
+        "cursor-theme": {
+          "type": "s",
+          "value": "'Bibata-Modern-Ice'"
+        },
+        "enable-hot-corners": {
+          "type": "b",
+          "value": "true"
+        },
+        "gtk-theme": {
+          "type": "s",
+          "value": "'Yaru-blue-dark'"
+        },
+        "icon-theme": {
+          "type": "s",
+          "value": "'WhiteSur-dark'"
+        },
+        "show-battery-percentage": {
+          "type": "b",
+          "value": "true"
+        },
+        "font-name": {
+          "type": "s",
+          "value": "'Ubuntu Sans 11'"
+        },
+        "text-scaling-factor": {
+          "type": "d",
+          "value": "1.0"
+        }
+      }
+    },
+    "org.gnome.desktop.wm.preferences": {
+      "values": {
+        "button-layout": {
+          "type": "s",
+          "value": "':minimize,maximize,close'"
+        }
+      }
+    }
+  }
+}
