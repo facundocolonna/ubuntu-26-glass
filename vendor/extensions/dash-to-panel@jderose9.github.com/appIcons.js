@@ -1668,7 +1668,7 @@ export const TaskbarAppIcon = GObject.registerClass(
         `${showNotifications ? 'add' : 'remove'}_style_class_name`
       ]('notification-badge')
 
-      if (shouldBeVisible && label !== this._numberOverlayLabel.get_text()) {
+      if (shouldBeVisible) {
         this._numberOverlayLabel.set_text(label.toString())
         this._updateNumberOverlay()
       }
@@ -1692,6 +1692,34 @@ export const TaskbarAppIcon = GObject.registerClass(
     }
 
     _updateNumberOverlay() {
+      // Notification badges sit on the upper-right edge of the icon. Keep
+      // their typography independent of the larger keyboard shortcut labels.
+      let scale = Utils.getScaleFactor()
+      if (this._numberOverlayLabel.has_style_class_name('notification-badge')) {
+        let fontSize = Math.max(9, Math.min(11,
+          Math.round(this.dtpPanel.geom.iconSize * 0.22 / scale)))
+        let diameter = Math.round(fontSize * 1.55)
+        this._numberOverlayLabel.set_style(`
+          font-size: ${fontSize}px;
+          height: ${diameter}px;
+          min-width: ${diameter - 6}px;
+        `)
+        this._numberOverlayBin.set({
+          x_expand: true,
+          x_align: Clutter.ActorAlign.END,
+          y_align: Clutter.ActorAlign.START,
+          translation_x: 3 * scale,
+          translation_y: -2 * scale,
+        })
+        return
+      }
+      this._numberOverlayBin.set({
+        x_expand: false,
+        x_align: Clutter.ActorAlign.START,
+        y_align: Clutter.ActorAlign.START,
+        translation_x: 0,
+        translation_y: 0,
+      })
       // We apply an overall scale factor that might come from a HiDPI monitor.
       // Clutter dimensions are in physical pixels, but CSS measures are in logical
       // pixels, so make sure to consider the scale.

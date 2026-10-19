@@ -36,8 +36,10 @@ arquitecturas se intenta compilar la biblioteca y se detiene si no es compatible
   radios de 12 px, fondo glass y selector animado de la aplicación con foco.
 - Reloj a la derecha y botón discreto para mostrar el escritorio al final.
   Las aplicaciones abiertas sin foco mantienen un indicador fino.
-- Contadores de notificaciones compactos, azules, con borde y sombra suaves.
-  Conservan el número de avisos y muestran «9+» cuando corresponde.
+- Contadores de notificaciones inspirados en el Dock de macOS: rojos, con
+  número blanco y sobre la esquina superior derecha del icono. Miden 17 px
+  en la barra predeterminada; conservan «9+» y los números de los atajos
+  mantienen su tamaño y posición originales.
 - Corrección para que pulsar el espacio vacío de la barra no active otra ventana.
 - Blur my Shell 75 modificado: geometría corregida del desenfoque, paneles y
   menús del Shell con tinte y esquinas coherentes, actividades y búsqueda.

@@ -20,7 +20,51 @@
        }
  
        if (this._dotsContainer.get_style() != inlineStyle) {
-@@ -1860,7 +1866,7 @@
+@@ -1662,7 +1668,7 @@
+         `${showNotifications ? 'add' : 'remove'}_style_class_name`
+       ]('notification-badge')
+ 
+-      if (shouldBeVisible && label !== this._numberOverlayLabel.get_text()) {
++      if (shouldBeVisible) {
+         this._numberOverlayLabel.set_text(label.toString())
+         this._updateNumberOverlay()
+       }
+@@ -1686,6 +1692,34 @@
+     }
+ 
+     _updateNumberOverlay() {
++      // Notification badges sit on the upper-right edge of the icon. Keep
++      // their typography independent of the larger keyboard shortcut labels.
++      let scale = Utils.getScaleFactor()
++      if (this._numberOverlayLabel.has_style_class_name('notification-badge')) {
++        let fontSize = Math.max(9, Math.min(11,
++          Math.round(this.dtpPanel.geom.iconSize * 0.22 / scale)))
++        let diameter = Math.round(fontSize * 1.55)
++        this._numberOverlayLabel.set_style(`
++          font-size: ${fontSize}px;
++          height: ${diameter}px;
++          min-width: ${diameter - 6}px;
++        `)
++        this._numberOverlayBin.set({
++          x_expand: true,
++          x_align: Clutter.ActorAlign.END,
++          y_align: Clutter.ActorAlign.START,
++          translation_x: 3 * scale,
++          translation_y: -2 * scale,
++        })
++        return
++      }
++      this._numberOverlayBin.set({
++        x_expand: false,
++        x_align: Clutter.ActorAlign.START,
++        y_align: Clutter.ActorAlign.START,
++        translation_x: 0,
++        translation_y: 0,
++      })
+       // We apply an overall scale factor that might come from a HiDPI monitor.
+       // Clutter dimensions are in physical pixels, but CSS measures are in logical
+       // pixels, so make sure to consider the scale.
+@@ -1860,7 +1894,7 @@
  // nautilus desktop window.
  export function getInterestingWindows(app, monitor, isolateMonitors) {
    let windows = (app ? app.get_windows() : Utils.getAllMetaWindows()).filter(
@@ -278,13 +322,13 @@
  
  #dashtopanelScrollview .notification-badge {
 -	background-color: rgba(214, 0, 0, 0.8);
-+	background-color: rgba(0, 120, 228, 0.94);
-+	border: 1px solid rgba(210, 232, 255, 0.55);
++	background-color: #ff3b30;
++	border: none;
 +	border-radius: 999px;
-+	padding: 0 4px;
-+	min-width: 13px;
-+	font-weight: 600;
-+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.28);
++	padding: 0 3px;
++	margin: 0;
++	font-weight: 500;
++	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.22);
  }
  
  #dashtopanelScrollview .progress-bar {
