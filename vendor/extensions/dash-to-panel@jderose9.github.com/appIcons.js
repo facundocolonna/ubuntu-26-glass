@@ -1704,6 +1704,9 @@ export const TaskbarAppIcon = GObject.registerClass(
           height: ${diameter}px;
           min-width: ${diameter - 6}px;
         `)
+        // Center the visible numeral optically inside the fixed-height badge;
+        // St.Label otherwise places the font's line box against its top edge.
+        this._numberOverlayLabel.clutter_text.translation_y = scale
         this._numberOverlayBin.set({
           x_expand: true,
           x_align: Clutter.ActorAlign.END,
@@ -1713,6 +1716,7 @@ export const TaskbarAppIcon = GObject.registerClass(
         })
         return
       }
+      this._numberOverlayLabel.clutter_text.translation_y = 0
       this._numberOverlayBin.set({
         x_expand: false,
         x_align: Clutter.ActorAlign.START,
