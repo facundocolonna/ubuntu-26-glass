@@ -204,6 +204,11 @@ escritorio y comprueba la reconstrucción de una a tres barras sin duplicados.
 pantallas virtuales: independencia entre pantallas, ventanas nuevas en el
 escritorio actual, maximizar/restaurar/cerrar en una secundaria y limpieza.
 
+`./tests/focus-slider.sh` comprueba la transición del resaltado de la app con
+foco y su alineación al cerrar otro icono y recentrar el grupo, incluso cuando
+la posición local del icono no cambia. También cubre cambios de contenedor y
+la limpieza de las señales al cerrar la app o destruir la barra.
+
 Los scripts de este repositorio se distribuyen bajo GPL-3.0-or-later. Los
 componentes incluidos conservan sus autores y licencias originales; ver
 [THIRD_PARTY.md](THIRD_PARTY.md).

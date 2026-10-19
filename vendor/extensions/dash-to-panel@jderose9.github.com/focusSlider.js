@@ -64,21 +64,45 @@ export class FocusSlider {
             this.target = icon;
             this.targetActor = icon._dotsContainer;
             this.targetIds = [
-                this.targetActor.connect('notify::allocation', () => this.queueUpdate(false)),
                 this.targetActor.connect('notify::mapped', () => this.queueUpdate()),
                 this.targetActor.connect('destroy', () => {
+                    this.disconnectTarget();
                     this.target = null;
-                    this.targetActor = null;
-                    this.targetIds = [];
                     this.queueUpdate();
                 }),
             ];
+            this.watchTargetHierarchy();
         }
         this.actor.set_style(`background-color: ${color}; border-radius: 10px;`);
         this.queueUpdate(true);
     }
 
+    watchTargetHierarchy() {
+        this.disconnectHierarchy();
+        // Closing an app recenters the taskbar and moves the icon's ancestors,
+        // often without changing the dots container's own allocation at all.
+        for (let actor = this.targetActor; actor && actor !== this.panel; actor = actor.get_parent()) {
+            for (const property of ['allocation', 'translation-x', 'translation-y', 'scale-x', 'scale-y']) {
+                const id = actor.connect(`notify::${property}`, () => this.queueUpdate(false));
+                this.hierarchyIds.push([actor, id]);
+            }
+            const id = actor.connect('parent-set', () => {
+                this.watchTargetHierarchy();
+                this.queueUpdate(false);
+            });
+            this.hierarchyIds.push([actor, id]);
+        }
+    }
+
+    disconnectHierarchy() {
+        for (const [actor, id] of this.hierarchyIds ?? [])
+            actor.disconnect(id);
+        this.hierarchyIds = [];
+    }
+
     queueUpdate(animate = true) {
+        if (this.destroyed)
+            return;
         this.animate = animate || this.animate;
         if (this.pending)
             return;
@@ -134,6 +158,7 @@ export class FocusSlider {
     }
 
     disconnectTarget() {
+        this.disconnectHierarchy();
         if (this.targetActor)
             this.targetIds?.forEach(id => this.targetActor.disconnect(id));
         this.targetActor = null;
