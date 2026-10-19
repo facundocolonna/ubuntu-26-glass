@@ -19,7 +19,10 @@ de las otras pantallas conservan su estado.
 
 La extensión usa minimización para ocultar los espacios de las pantallas
 secundarias. Al elegir una ventana desde la barra o Alt+Tab, se muestra su
-escritorio. Al desactivar la extensión se recuperan las ventanas que ocultó;
+escritorio. `Alt+Tab` y `Alt+Shift+Tab` recorren ventanas de todos los
+escritorios y pantallas, sin agruparlas por aplicación; `Super+Tab` conserva el
+selector de aplicaciones. Se respeta el orden reciente de GNOME.
+Al desactivar la extensión se recuperan las ventanas que ocultó;
 las que el usuario minimizó por su cuenta permanecen minimizadas.
 
 ## Little Big Mouse

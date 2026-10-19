@@ -6,7 +6,7 @@
  /**
   * Workspace Islands — independent per-monitor workspaces for GNOME Shell.
   *
-@@ -18,6 +20,7 @@
+@@ -18,12 +20,12 @@
  import { Registry, invalidateConnectors, monitorIndexOf } from './monitorState.js';
  import { placementConnector } from './placement.js';
  import { Keybindings } from './keybindings.js';
@@ -14,7 +14,13 @@
  import { Persistence } from './persistence.js';
  import { Indicator } from './indicator.js';
  import { SwitcherPopup } from './switcherPopup.js';
-@@ -78,6 +81,8 @@
+ import { SlideController } from './slide.js';
+ import { isApplying, isHiddenByUs, forget } from './visibility.js';
+-import * as AltTabFilter from './altTab.js';
+ import * as OverviewFilter from './overview.js';
+ import * as ScrollFilter from './scroll.js';
+ 
+@@ -78,6 +80,8 @@
          this._registry.syncMonitors();
  
          this._windowSignals = new Map();
@@ -23,16 +29,27 @@
          this._signals = [];
          this._settleId = 0;
          this._layoutChanging = false;
-@@ -160,6 +165,8 @@
+@@ -120,7 +124,8 @@
+                 this._indicator?.setPreview(state, value),
+         });
+ 
+-        AltTabFilter.patch();
++        // Keep GNOME's native switchers unfiltered. Selecting a hidden window
++        // is handled by _onMinimizedChanged(), which follows its workspace.
+ 
+         // Super + wheel on the desktop. The overview has its own scroll seam
+         // and already worked; this is the one outside it.
+@@ -160,7 +165,8 @@
      }
  
      disable() {
+-        AltTabFilter.unpatch();
 +        this._maximizer?.destroy();
 +        this._maximizer = null;
-         AltTabFilter.unpatch();
          ScrollFilter.unpatch();
          OverviewFilter.unpatch();
-@@ -507,6 +514,10 @@
+ 
+@@ -507,6 +513,10 @@
      }
  
      _trackWindow(window, { trustPlacement = true } = {}) {
@@ -43,7 +60,7 @@
          const state = this._registry.forWindow(window);
          if (!state)
              return;
-@@ -519,6 +530,7 @@
+@@ -519,6 +529,7 @@
  
          const ids = [
              window.connect('unmanaged', () => {
@@ -51,7 +68,7 @@
                  // Everywhere, not forWindow(): a window being unmanaged has no
                  // monitor worth asking about, and it belongs nowhere now. A
                  // group left holding a dead window would minimize() it on the
-@@ -533,6 +545,7 @@
+@@ -533,6 +544,7 @@
          ];
  
          this._windowSignals.set(window, ids);
@@ -59,7 +76,7 @@
      }
  
      /**
-@@ -593,6 +606,9 @@
+@@ -593,6 +605,9 @@
                  this._keys.add(name, () => this._switchTo(i - 1));
          }
  
@@ -69,7 +86,7 @@
          this._keys.add('switch-next', () => this._switchRelative(1));
          this._keys.add('switch-prev', () => this._switchRelative(-1));
          this._keys.add('move-window-to-next', () => this._moveFocused(1));
-@@ -672,6 +688,25 @@
+@@ -672,6 +687,25 @@
          this._log(message);
      }
  

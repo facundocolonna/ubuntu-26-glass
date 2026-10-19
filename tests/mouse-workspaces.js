@@ -3,6 +3,7 @@ import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as Scripting from 'resource:///org/gnome/shell/ui/scripting.js';
+import * as AltTab from 'resource:///org/gnome/shell/ui/altTab.js';
 export const METRICS = {};
 export async function run() {
     await Scripting.sleep(4500);
@@ -85,6 +86,46 @@ app.run(None)`;
     const d = await create(secondary[0].index);
     if (d.minimized || s1.indexOf(d) !== s1.activeIndex)
         throw new Error('New window did not open on current virtual workspace');
+    // Keep the starting native workspace occupied while moving the fixture.
+    const primaryAnchor = await create(primary);
+    const manager = global.workspace_manager;
+    const nativeNext = manager.get_workspace_by_index(native.index() + 1) ??
+        manager.append_new_workspace(false, global.get_current_time());
+    a.change_workspace(nativeNext);
+    await Scripting.sleep(150);
+    function chooseWindow(window, expectedWindows) {
+        // Exercise the native listing and activation methods without drawing
+        // thumbnails of synthetic GTK windows in the headless compositor.
+        const popup = {_settings: new Gio.Settings({schema_id: 'org.gnome.shell.window-switcher'}),
+            fadeAndDestroy() {}};
+        const windows = AltTab.WindowSwitcherPopup.prototype._getWindowList.call(popup);
+        for (const expected of expectedWindows) {
+            if (!windows.includes(expected)) {
+                throw new Error('Alt+Tab omitted a window on another workspace or monitor');
+            }
+        }
+        popup._items = windows.map(window => ({window}));
+        popup._selectedIndex = windows.indexOf(window);
+        AltTab.WindowSwitcherPopup.prototype._finish.call(popup);
+    }
+    chooseWindow(b, [a,b,c,d]);
+    await Scripting.sleep(700);
+    if (s1.activeIndex !== s1.indexOf(b) || b.minimized || !d.minimized || c.minimized ||
+        global.workspace_manager.get_active_workspace() !== native)
+        throw new Error('Alt+Tab did not follow a hidden secondary window independently');
+    chooseWindow(d, [a,b,c,d]);
+    await Scripting.sleep(700);
+    if (s1.activeIndex !== s1.indexOf(d) || d.minimized || !b.minimized)
+        throw new Error('Alt+Tab did not return to the other virtual workspace');
+    chooseWindow(a, [a,b,c,d]);
+    await Scripting.sleep(700);
+    if (global.workspace_manager.get_active_workspace() !== nativeNext ||
+        s1.activeIndex !== s1.indexOf(d) || d.minimized || c.minimized)
+        throw new Error('Alt+Tab did not follow a native workspace independently');
+    a.change_workspace(native);
+    native.activate(global.get_current_time());
+    await Scripting.sleep(400);
+    print('ALT_TAB_PASS all_windows=true native_and_virtual=true selection_follows_workspace=true');
     await pointer(secondary[0].index);
     await press(-1);
     if (s1.activeIndex !== 0 || b.minimized || !d.minimized || c.minimized)
@@ -137,7 +178,7 @@ app.run(None)`;
     if (!manual.minimized)
         throw new Error('Disable restored a manually minimized window');
     print('WORKSPACE_CLEANUP_PASS hidden_windows_restored=true manual_minimization=preserved');
-    for (const w of [a,c,d,e,manual]) processes.get(w).send_signal(10);
+    for (const w of [a,c,d,e,manual,primaryAnchor]) processes.get(w).send_signal(10);
     await Scripting.sleep(500);
     for (const uuid of [...Main.extensionManager._extensionOrder].reverse())
         await Main.extensionManager._callExtensionDisable(uuid);

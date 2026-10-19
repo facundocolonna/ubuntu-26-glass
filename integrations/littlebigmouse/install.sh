@@ -58,6 +58,8 @@ if workspace.exists():
     for key,spec in json.loads((bundle/'workspace-settings.json').read_text()).items():
         controller.set_value(key,GLib.Variant.parse(GLib.VariantType.new(spec['type']),spec['value'],None,None))
     Gio.Settings.new('org.gnome.mutter').set_boolean('workspaces-only-on-primary',True)
+    for schema in ['org.gnome.shell.window-switcher', 'org.gnome.shell.app-switcher']:
+        Gio.Settings.new(schema).set_boolean('current-workspace-only',False)
     enabled=settings.get_strv('enabled-extensions')
     if workspace_uuid not in enabled:
         settings.set_strv('enabled-extensions',[*enabled,workspace_uuid])

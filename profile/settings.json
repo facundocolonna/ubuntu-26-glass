@@ -1614,6 +1614,22 @@
           "value": "@as []"
         }
       }
+    },
+    "org.gnome.shell.window-switcher": {
+      "values": {
+        "current-workspace-only": {
+          "type": "b",
+          "value": "false"
+        }
+      }
+    },
+    "org.gnome.shell.app-switcher": {
+      "values": {
+        "current-workspace-only": {
+          "type": "b",
+          "value": "false"
+        }
+      }
     }
   }
 }

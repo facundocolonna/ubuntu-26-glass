@@ -202,7 +202,8 @@ escritorio y comprueba la reconstrucción de una a tres barras sin duplicados.
 
 `./tests/mouse-workspaces.sh` prueba los atajos que emite el mouse con tres
 pantallas virtuales: independencia entre pantallas, ventanas nuevas en el
-escritorio actual, maximizar/restaurar/cerrar en una secundaria y limpieza.
+escritorio actual, Alt+Tab entre escritorios nativos y virtuales,
+maximizar/restaurar/cerrar en una secundaria y limpieza.
 
 `./tests/focus-slider.sh` comprueba la transición del resaltado de la app con
 foco y su alineación al cerrar otro icono y recentrar el grupo, incluso cuando

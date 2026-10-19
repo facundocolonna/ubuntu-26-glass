@@ -26,7 +26,6 @@ import { Indicator } from './indicator.js';
 import { SwitcherPopup } from './switcherPopup.js';
 import { SlideController } from './slide.js';
 import { isApplying, isHiddenByUs, forget } from './visibility.js';
-import * as AltTabFilter from './altTab.js';
 import * as OverviewFilter from './overview.js';
 import * as ScrollFilter from './scroll.js';
 
@@ -125,7 +124,8 @@ export default class WorkspaceIslands extends Extension {
                 this._indicator?.setPreview(state, value),
         });
 
-        AltTabFilter.patch();
+        // Keep GNOME's native switchers unfiltered. Selecting a hidden window
+        // is handled by _onMinimizedChanged(), which follows its workspace.
 
         // Super + wheel on the desktop. The overview has its own scroll seam
         // and already worked; this is the one outside it.
@@ -167,7 +167,6 @@ export default class WorkspaceIslands extends Extension {
     disable() {
         this._maximizer?.destroy();
         this._maximizer = null;
-        AltTabFilter.unpatch();
         ScrollFilter.unpatch();
         OverviewFilter.unpatch();
 
