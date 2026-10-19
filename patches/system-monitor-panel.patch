@@ -1,6 +1,34 @@
 --- a/extension.js
 +++ b/extension.js
-@@ -2617,6 +2617,9 @@
+@@ -7,6 +7,7 @@
+    SPDX-License-Identifier: GPL-2.0-or-later
+ */
+ 
++import { setBarWidth } from './progressBar.js';
+ import Clutter from 'gi://Clutter';
+ import GLib from 'gi://GLib';
+ import GObject from 'gi://GObject';
+@@ -83,19 +84,6 @@
+     for (const s of ['normal', 'warning', 'critical'])
+         actor.remove_style_class_name(`${prefix}-${s}`);
+     actor.add_style_class_name(`${prefix}-${state}`);
+-}
+-
+-/**
+- * Set a progress bar's fill width from a percentage.
+- *
+- * `logicalWidth` is the bar's width in CSS pixels; Clutter sizes are in device
+- * pixels, so it has to be multiplied by the theme scale factor or the fill
+- * under-shoots the (CSS-sized) track on HiDPI and fractionally scaled displays.
+- */
+-function setBarWidth(actor, percent, logicalWidth) {
+-    const clamped = Math.max(0, Math.min(100, percent));
+-    const scale = St.ThemeContext.get_for_stage(global.stage).scale_factor;
+-    actor.set_width(Math.round((clamped / 100) * logicalWidth * scale));
+ }
+ 
+ /**
+@@ -2617,6 +2605,9 @@
      }
  
      destroy() {
@@ -10,7 +38,7 @@
          this._stopTimer();
  
          // Outstanding statfs callbacks would otherwise fire against a
-@@ -2671,6 +2674,8 @@
+@@ -2671,6 +2662,8 @@
  export default class SystemMonitorExtension extends Extension {
      enable() {
          this._settings = this.getSettings();
@@ -19,7 +47,7 @@
          this._indicator = new SystemMonitorIndicator(this);
  
          Main.panel.addToStatusArea(this.uuid, this._indicator);
-@@ -2678,16 +2683,29 @@
+@@ -2678,16 +2671,29 @@
  
          this._settings.connectObject(
              'changed::panel-position', () => this._applyPosition(), this);
@@ -50,7 +78,7 @@
          if (!targetBox) {
              console.error(
                  `System Monitor: this GNOME Shell no longer exposes ` +
-@@ -2695,13 +2713,74 @@
+@@ -2695,13 +2701,74 @@
              return;
          }
  
@@ -126,3 +154,37 @@
          this._settings?.disconnectObject(this);
          this._indicator?.destroy();
          this._indicator = null;
+--- /dev/null
++++ b/progressBar.js
+@@ -0,0 +1,31 @@
++import St from 'gi://St';
++
++/** Size the fill against its allocated track, including stretched cards. */
++export function setBarWidth(actor, percent, logicalWidth) {
++    const track = actor.get_parent();
++    let binding = actor._smpBarWidth;
++    if (!binding || binding.track !== track) {
++        binding?.track.disconnectObject(actor);
++        binding = {track, percent: 0, width: -1};
++        binding.update = () => {
++            const scale = St.ThemeContext.get_for_stage(global.stage).scale_factor;
++            let width = logicalWidth * scale;
++            if (track.has_allocation()) {
++                const content = track.get_theme_node().get_content_box(track.get_allocation_box());
++                width = Math.max(0, content.x2 - content.x1);
++            }
++            const fillWidth = Math.round(width * binding.percent / 100);
++            if (binding.width === fillWidth)
++                return;
++            binding.width = fillWidth;
++            actor.set_width(fillWidth);
++            // A previous 100% fill must not impose a minimum width that stops
++            // its track from shrinking when the menu or monitor changes size.
++            actor.min_width = 0;
++        };
++        track.connectObject('notify::allocation', binding.update, actor);
++        actor._smpBarWidth = binding;
++    }
++    binding.percent = Number.isFinite(percent) ? Math.max(0, Math.min(100, percent)) : 0;
++    binding.update();
++}

@@ -7,6 +7,7 @@
    SPDX-License-Identifier: GPL-2.0-or-later
 */
 
+import { setBarWidth } from './progressBar.js';
 import Clutter from 'gi://Clutter';
 import GLib from 'gi://GLib';
 import GObject from 'gi://GObject';
@@ -83,19 +84,6 @@ function setStateClass(actor, prefix, state) {
     for (const s of ['normal', 'warning', 'critical'])
         actor.remove_style_class_name(`${prefix}-${s}`);
     actor.add_style_class_name(`${prefix}-${state}`);
-}
-
-/**
- * Set a progress bar's fill width from a percentage.
- *
- * `logicalWidth` is the bar's width in CSS pixels; Clutter sizes are in device
- * pixels, so it has to be multiplied by the theme scale factor or the fill
- * under-shoots the (CSS-sized) track on HiDPI and fractionally scaled displays.
- */
-function setBarWidth(actor, percent, logicalWidth) {
-    const clamped = Math.max(0, Math.min(100, percent));
-    const scale = St.ThemeContext.get_for_stage(global.stage).scale_factor;
-    actor.set_width(Math.round((clamped / 100) * logicalWidth * scale));
 }
 
 /**
