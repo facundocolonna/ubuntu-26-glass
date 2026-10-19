@@ -51,8 +51,10 @@ arquitecturas se intenta compilar la biblioteca y se detiene si no es compatible
 - ScreenToSpace 15: al maximizar una ventana que comparte escritorio, la separa
   en un espacio propio y te lleva allí. Al restaurarla o cerrarla, vuelve al
   escritorio de origen. Se activa al maximizar, no al entrar en pantalla completa.
-- La barra muestra las aplicaciones abiertas de **todos los escritorios**;
-  sus ventanas siguen perteneciendo a su escritorio, no se duplican en los demás.
+- Cada barra muestra como abiertas solo las aplicaciones de **su monitor**,
+  incluyendo sus ventanas de todos los escritorios. Los favoritos siguen en
+  todas las barras: si Chrome está abierto en otra pantalla, un clic en su icono
+  permite abrir una ventana nueva.
 - Iconos WhiteSur-dark, cursor Bibata-Modern-Ice de 24 px, Yaru-blue-dark y
   acento azul. Incluye también los temas WhiteSur base y claro.
 - Extension Manager, Retoques y las dependencias documentadas en

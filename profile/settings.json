@@ -859,7 +859,7 @@
         },
         "isolate-monitors": {
           "type": "b",
-          "value": "false"
+          "value": "true"
         },
         "isolate-monitors-with-single-panel": {
           "type": "b",
