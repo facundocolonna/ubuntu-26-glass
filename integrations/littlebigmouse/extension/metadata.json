@@ -1,0 +1,7 @@
+{
+  "uuid": "littlebigmouse-cursor@gnome-glass.local",
+  "name": "LittleBigMouse Cursor Edge Fix",
+  "description": "Clip the cursor to its active monitor while LittleBigMouse routes input, preventing displaced cursor fragments on adjacent monitors.",
+  "shell-version": ["50"],
+  "version": 1
+}

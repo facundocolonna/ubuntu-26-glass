@@ -1,0 +1,24 @@
+{
+  "upstream": "https://github.com/mgth/LittleBigMouse",
+  "commit": "2b8946aec72c4030bf6d5dcb76a35fc038bcbf10",
+  "dotnet": "10.0.402",
+  "rust": "1.98.1",
+  "status": "Experimental: pendiente de prueba de movimiento real en GNOME 50 Wayland",
+  "autostart": true,
+  "verification": {
+    "ui_build": "PASS",
+    "hook_build": "PASS",
+    "evdev_unit_tests": "26 passed",
+    "desktop_ui_start": "PASS",
+    "monitor_detection": "3 displays: 600x340, 597x337, 344x215 mm",
+    "gnome_mouse_routing": "pending",
+    "gnome_cursor_extension": "PASS: isolated GNOME, two virtual monitors, native cursor inside screen, clipped at edge, restores on stop/disconnect/disable",
+    "real_display_cursor_extension": "pending next login and visual check",
+    "autostart": "Entry fixed for GNOME 50: obsolete X-GNOME-Autostart-Phase removed. PASS: installed desktop launcher starts hidden UI and saved layout; daemon reports Running. Next real login not yet observed.",
+    "workspace_buttons": "PASS: 27 evdev routing tests; GNOME 50 isolated three-monitor switching, new windows, maximize/restore/close, cleanup. Real physical buttons pending next login."
+  },
+  "time_limit_seconds": null,
+  "local_changes": [
+    "Opt-in Logitech side button workspace chords in evdev frame routing"
+  ]
+}

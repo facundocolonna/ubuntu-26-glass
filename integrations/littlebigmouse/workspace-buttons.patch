@@ -1,0 +1,128 @@
+diff --git a/rust/crates/lbm-hook/src/hook/linux/evdev/frame.rs b/rust/crates/lbm-hook/src/hook/linux/evdev/frame.rs
+index 09e67276..ad6d1cd4 100644
+--- a/rust/crates/lbm-hook/src/hook/linux/evdev/frame.rs
++++ b/rust/crates/lbm-hook/src/hook/linux/evdev/frame.rs
+@@ -15,7 +15,7 @@
+ 
+ use std::os::fd::RawFd;
+ 
+-use evdev::{AbsoluteAxisCode, EventType, InputEvent, RelativeAxisCode};
++use evdev::{AbsoluteAxisCode, EventType, InputEvent, KeyCode, RelativeAxisCode};
+ 
+ use super::cursor::EvdevCursor;
+ use super::{BTN_RANGE, BTN_TRIGGER_HAPPY_RANGE};
+@@ -48,6 +48,7 @@ pub enum Frame {
+ /// Public (with private fields) so `benches/evdev_pump.rs` can drive the
+ /// classification and frame composition without a device or `/dev/uinput`.
+ pub struct PumpBuffers {
++    workspace_buttons: bool,
+     /// `poll(2)` set: the grabbed mice first, then the observed keyboards. The
+     /// split point is the mouse count, which is how a slot maps back to a list.
+     fds: Vec<libc::pollfd>,
+@@ -84,6 +85,7 @@ impl PumpBuffers {
+     /// and the larger capacity is then kept for the rest of the session.
+     pub fn new() -> PumpBuffers {
+         PumpBuffers {
++            workspace_buttons: false,
+             fds: Vec::with_capacity(8),
+             events: Vec::with_capacity(64),
+             dead: Vec::with_capacity(4),
+@@ -95,6 +97,10 @@ impl PumpBuffers {
+         }
+     }
+ 
++    pub fn enable_workspace_buttons(&mut self, enabled: bool) {
++        self.workspace_buttons = enabled;
++    }
++
+     /// Rebuild the poll set from the current devices. Called every cycle: the
+     /// device list changes on hot-plug, and `poll` writes `revents` in place, so
+     /// the set has to be reset even when the fds are the same.
+@@ -175,6 +181,29 @@ impl PumpBuffers {
+     /// arrival order in the buffer that matches its destination device, and
+     /// `SYN_REPORT` closes the frame.
+     pub fn push(&mut self, ev: InputEvent, env: &mut EvdevCursor, dev: usize) -> Frame {
++        if self.workspace_buttons && ev.event_type() == EventType::KEY {
++            let key = match ev.code() {
++                code if code == KeyCode::BTN_SIDE.0 => Some(KeyCode::KEY_PAGEUP),
++                code if code == KeyCode::BTN_EXTRA.0 => Some(KeyCode::KEY_PAGEDOWN),
++                _ => None,
++            };
++            if let Some(key) = key {
++                // One pulse per physical press: no repeats or keys left held
++                // if the daemon stops while a side button is still down.
++                env.track_button(ev.code(), 0);
++                if ev.value() == 1 {
++                    for code in [KeyCode::KEY_LEFTMETA, KeyCode::KEY_LEFTCTRL,
++                                 KeyCode::KEY_LEFTALT, key] {
++                        self.kbd.push(InputEvent::new(EventType::KEY.0, code.0, 1));
++                    }
++                    for code in [key, KeyCode::KEY_LEFTALT,
++                                 KeyCode::KEY_LEFTCTRL, KeyCode::KEY_LEFTMETA] {
++                        self.kbd.push(InputEvent::new(EventType::KEY.0, code.0, 0));
++                    }
++                }
++                return Frame::Pending;
++            }
++        }
+         match ev.event_type() {
+             EventType::SYNCHRONIZATION => return Frame::Complete,
+             EventType::RELATIVE if ev.code() == RelativeAxisCode::REL_X.0 => {
+@@ -324,6 +353,34 @@ mod tests {
+         assert_eq!(bufs.push(*syn, env, 0), Frame::Complete);
+     }
+ 
++    #[test]
++    fn workspace_buttons_are_opt_in_and_emit_one_pulse() {
++        let (mut bufs, mut env) = (PumpBuffers::new(), cursor());
++        let _ = bufs.push(key(KeyCode::BTN_SIDE.0, 1), &mut env, 0);
++        assert_eq!(bufs.pointer_frame(0, 0).len(), 3);
++        bufs.enable_workspace_buttons(true);
++        for (button, mapped) in [(KeyCode::BTN_SIDE, KeyCode::KEY_PAGEUP),
++                                 (KeyCode::BTN_EXTRA, KeyCode::KEY_PAGEDOWN)] {
++            for value in [1, 2, 0] {
++                let _ = bufs.push(key(button.0, value), &mut env, 0);
++            }
++            assert_eq!(bufs.pointer_frame(0, 0).len(), 2);
++            bufs.take_keyboard_frame(|events| {
++                assert_eq!(events.len(), 8);
++                assert_eq!(events[3].code(), mapped.0);
++                assert_eq!(events[4].code(), mapped.0);
++                for i in 0..4 {
++                    assert_eq!(events[i].code(), events[7-i].code());
++                    assert_eq!(events[i].value(), 1);
++                    assert_eq!(events[7-i].value(), 0);
++                }
++            });
++        }
++        let _ = bufs.push(key(KeyCode::BTN_LEFT.0, 1), &mut env, 0);
++        assert_eq!(bufs.pointer_frame(0, 0).len(), 3);
++        assert_eq!(bufs.kbd.len(), 0);
++    }
++
+     // --- frame accumulation ---------------------------------------------------
+ 
+     /// The two axes of one report are one motion, and only SYN_REPORT closes it.
+diff --git a/rust/crates/lbm-hook/src/hook/linux/evdev/router.rs b/rust/crates/lbm-hook/src/hook/linux/evdev/router.rs
+index 9881d29c..812a43b8 100644
+--- a/rust/crates/lbm-hook/src/hook/linux/evdev/router.rs
++++ b/rust/crates/lbm-hook/src/hook/linux/evdev/router.rs
+@@ -167,6 +167,9 @@ impl Router {
+         resume_at: Option<Point<i32>>,
+     ) -> std::io::Result<Router> {
+         let desktop = desktop_bounds_blocking(shared);
++        let mut bufs = PumpBuffers::new();
++        bufs.enable_workspace_buttons(
++            std::env::var("LBM_GNOME_WORKSPACE_BUTTONS").as_deref() == Ok("1"));
+ 
+         // Everything slow happens BEFORE the first grab: from EVIOCGRAB on, the
+         // user's mice are captured but not routed yet, so this window must stay
+@@ -276,7 +279,7 @@ impl Router {
+             debug,
+             rem: (0.0, 0.0),
+             accel_cfg,
+-            bufs: PumpBuffers::new(),
++            bufs,
+         };
+ 
+         // Place the cursor at the start point and prime the engine there.

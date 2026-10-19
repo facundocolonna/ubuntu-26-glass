@@ -304,7 +304,7 @@ def main():
     packages = read_json(REPO / 'profile/packages.json')
     missing = [p for p in packages['runtime'] + packages['tools'] + packages['build'] if installed_version(p) is None]
     print(f'Integridad: {count} archivos verificados. {version}; Mutter {mutter}.')
-    print('Extensiones: barra global, desenfoque, esquinas, CPU/RAM y escritorios al maximizar.')
+    print('Extensiones: barra, desenfoque, esquinas, CPU/RAM y escritorios independientes por pantalla.')
     print('Temas: WhiteSur-dark, Bibata-Modern-Ice, Yaru-blue-dark.')
     print('Biblioteca de desenfoque: ' + {'installed': 'ya instalada y compatible', 'bundled': 'instalar .deb incluido', 'build': 'compilar para el Mutter instalado'}[mode])
     print('Paquetes pendientes: ' + (', '.join(missing) or 'ninguno'))

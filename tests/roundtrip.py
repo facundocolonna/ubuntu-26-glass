@@ -41,10 +41,10 @@ gtk_glass = gtk_css.with_name('gnome-glass-nautilus.css')
 # A v1.0 backup has four extensions and no ScreenToSpace/Mutter settings.
 legacy_components = dict(components)
 legacy_components['extensions'] = [c for c in components['extensions']
-                                   if c['uuid'] != 'screentospace@dilzhan.dev']
+                                   if c['uuid'] not in ['screentospace@dilzhan.dev', 'workspace-islands@danielbernalo.github.io']]
 legacy_profile = {'format': 1, 'schemas': {
     name: entry for name, entry in profile['schemas'].items()
-    if name not in ['org.gnome.shell.extensions.screentospace', 'org.gnome.mutter']}}
+    if name not in ['org.gnome.shell.extensions.screentospace', 'org.gnome.shell.extensions.workspace-islands', 'org.gnome.mutter']}}
 i.snapshot(legacy_profile, legacy_components, data, base / 'backup-v1')
 legacy_state = i.read_json(base / 'backup-v1/state.json')
 legacy_state.pop('config_home', None)

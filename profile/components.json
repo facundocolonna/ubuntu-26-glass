@@ -29,6 +29,13 @@
       "uuid": "screentospace@dilzhan.dev",
       "version": 15,
       "url": "https://github.com/DilZhaan/ScreenToSpace"
+    },
+    {
+      "name": "Workspace Islands",
+      "uuid": "workspace-islands@danielbernalo.github.io",
+      "version": "0.1.2",
+      "url": "https://github.com/danielbernalo/gnome-workspace-islands",
+      "commit": "8d99a01815ac345dfccc75361e766f23e66f5361"
     }
   ],
   "themes": [

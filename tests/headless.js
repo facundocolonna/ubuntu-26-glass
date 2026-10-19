@@ -10,7 +10,7 @@ export async function run() {
     await Scripting.sleep(5000);
     const uuids = ['dash-to-panel@jderose9.github.com', 'blur-my-shell@aunetx',
         'rounded-window-corners@fxgn', 'system-monitor-panel@naimur',
-        'screentospace@dilzhan.dev'];
+        'screentospace@dilzhan.dev', 'workspace-islands@danielbernalo.github.io'];
     for (const uuid of uuids) {
         const extension = Main.extensionManager.lookup(uuid);
         if (extension?.state !== 1)

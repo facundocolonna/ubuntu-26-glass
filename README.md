@@ -58,6 +58,12 @@ arquitecturas se intenta compilar la biblioteca y se detiene si no es compatible
 - ScreenToSpace 15: al maximizar una ventana que comparte escritorio, la separa
   en un espacio propio y te lleva allí. Al restaurarla o cerrarla, vuelve al
   escritorio de origen. Se activa al maximizar, no al entrar en pantalla completa.
+- Workspace Islands 0.1.2 con integración local: escritorios independientes
+  y dinámicos en las pantallas secundarias, con gestos, vista de actividades
+  y separación al maximizar. La principal conserva los escritorios nativos.
+  Los botones laterales del Logitech actúan sobre la pantalla bajo el puntero
+  cuando se usa el componente Little Big Mouse actualizado. Ver
+  [docs/ESCRITORIOS.md](docs/ESCRITORIOS.md).
 - Cada barra muestra como abiertas solo las aplicaciones de **su monitor**,
   incluyendo sus ventanas de todos los escritorios. Los favoritos siguen en
   todas las barras: si Chrome está abierto en otra pantalla, un clic en su icono
@@ -138,7 +144,7 @@ instalador para recuperar esta versión.
   a las ventanas de Nautilus para conservar el aspecto de otras aplicaciones.
 - `profile/packages.json`: dependencias explícitas que resolverá APT.
 - `profile/components.json`: versiones, UUID, repositorios y commits de referencia.
-- `vendor/extensions/`: código exacto de las cinco extensiones instaladas.
+- `vendor/extensions/`: código exacto de las seis extensiones instaladas.
 - `vendor/themes/`: temas completos, con sus enlaces simbólicos.
 - `vendor/native/`: biblioteca nativa, fuentes y paquete binario de referencia.
 - `vendor/sources/`: fuentes originales de WhiteSur y Bibata.
@@ -184,7 +190,7 @@ Usa un bus D-Bus privado, GSettings con backend keyfile y carpetas temporales.
 Prueba instalación, reinstalación, restauración y recuperación ante un fallo
 parcial sin cambiar tu escritorio ni instalar paquetes del sistema.
 
-`./tests/headless.sh` realiza además una prueba con las cinco extensiones en
+`./tests/headless.sh` realiza además una prueba con las seis extensiones en
 un compositor GNOME separado, comprueba el desenfoque nativo y la posición
 inferior izquierda de CPU/RAM, y prueba maximizar, restaurar y cerrar ventanas,
 así como la visibilidad global de la barra. Requiere la biblioteca nativa ya instalada y
@@ -193,6 +199,10 @@ así como la visibilidad global de la barra. Requiere la biblioteca nativa ya in
 `./tests/multimonitor.sh` ejecuta GNOME con tres pantallas virtuales, prueba
 la herencia del diseño y CPU/RAM en cada barra, descarta las superficies de
 escritorio y comprueba la reconstrucción de una a tres barras sin duplicados.
+
+`./tests/mouse-workspaces.sh` prueba los atajos que emite el mouse con tres
+pantallas virtuales: independencia entre pantallas, ventanas nuevas en el
+escritorio actual, maximizar/restaurar/cerrar en una secundaria y limpieza.
 
 Los scripts de este repositorio se distribuyen bajo GPL-3.0-or-later. Los
 componentes incluidos conservan sus autores y licencias originales; ver

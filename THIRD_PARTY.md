@@ -10,6 +10,7 @@ Los campos completos de procedencia están en `profile/components.json`.
 | Rounded Window Corners Reborn | 25 | [flexagoon/rounded-window-corners](https://github.com/flexagoon/rounded-window-corners) | GPL; `licenses/Rounded-Window-Corners-LICENSE` |
 | System Monitor | 6 / 2.2, con integración local para varias barras | [naimur900/system-monitor-panel-gnome](https://github.com/naimur900/system-monitor-panel-gnome) | Texto de licencia en su carpeta `vendor/extensions/` |
 | ScreenToSpace | 15, con filtrado local de superficies del escritorio | [DilZhaan/ScreenToSpace](https://github.com/DilZhaan/ScreenToSpace) | GPL-2.0-or-later; avisos en el código y `LICENSE` junto a la extensión |
+| Workspace Islands | 0.1.2, con controles por puntero e integración local al maximizar | [danielbernalo/gnome-workspace-islands](https://github.com/danielbernalo/gnome-workspace-islands) | GPL-2.0-or-later; `LICENSE` junto a la extensión |
 | GNOME Rounded Blur | `a4db9e5` | [kancko/gnome-rounded-blur](https://github.com/kancko/gnome-rounded-blur) | GPL-3.0-or-later, licencia junto al fuente |
 | WhiteSur | `73d8040` | [vinceliuice/WhiteSur-icon-theme](https://github.com/vinceliuice/WhiteSur-icon-theme) | GPL, `licenses/WhiteSur-COPYING` y autores en `licenses/WhiteSur-AUTHORS` |
 | Bibata | 2.0.6, paquete Ubuntu `2.0.6-1build1` | [ful1e5/Bibata_Cursor](https://github.com/ful1e5/Bibata_Cursor) | GPL-3.0; `licenses/Bibata-copyright` |

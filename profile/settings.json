@@ -1523,6 +1523,95 @@
         "dynamic-workspaces": {
           "type": "b",
           "value": "true"
+        },
+        "workspaces-only-on-primary": {
+          "type": "b",
+          "value": "true"
+        }
+      }
+    },
+    "org.gnome.shell.extensions.workspace-islands": {
+      "extension": "workspace-islands@danielbernalo.github.io",
+      "values": {
+        "dynamic-virtual-workspaces": {
+          "type": "b",
+          "value": "true"
+        },
+        "virtual-workspaces": {
+          "type": "i",
+          "value": "4"
+        },
+        "touchpad-gesture": {
+          "type": "b",
+          "value": "true"
+        },
+        "switch-animation": {
+          "type": "b",
+          "value": "true"
+        },
+        "switcher-popup": {
+          "type": "b",
+          "value": "true"
+        },
+        "debug-logging": {
+          "type": "b",
+          "value": "false"
+        },
+        "switch-next": {
+          "type": "as",
+          "value": "@as []"
+        },
+        "switch-prev": {
+          "type": "as",
+          "value": "@as []"
+        },
+        "move-window-to-next": {
+          "type": "as",
+          "value": "@as []"
+        },
+        "move-window-to-prev": {
+          "type": "as",
+          "value": "@as []"
+        },
+        "mouse-workspace-next": {
+          "type": "as",
+          "value": "['<Super><Control><Alt>Page_Down']"
+        },
+        "mouse-workspace-prev": {
+          "type": "as",
+          "value": "['<Super><Control><Alt>Page_Up']"
+        },
+        "switch-to-1": {
+          "type": "as",
+          "value": "@as []"
+        },
+        "switch-to-2": {
+          "type": "as",
+          "value": "@as []"
+        },
+        "switch-to-3": {
+          "type": "as",
+          "value": "@as []"
+        },
+        "switch-to-4": {
+          "type": "as",
+          "value": "@as []"
+        },
+        "switch-to-5": {
+          "type": "as",
+          "value": "@as []"
+        },
+        "switch-to-6": {
+          "type": "as",
+          "value": "@as []"
+        },
+        "switch-to-7": {
+          "type": "as",
+          "value": "@as []"
+        },
+        "switch-to-8": {
+          "type": "as",
+          "value": "@as []"
         }
       }
     }

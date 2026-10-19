@@ -1,0 +1,298 @@
+--- a/extension.js
++++ b/extension.js
+@@ -1,3 +1,5 @@
++import Meta from 'gi://Meta';
++import Shell from 'gi://Shell';
+ /**
+  * Workspace Islands — independent per-monitor workspaces for GNOME Shell.
+  *
+@@ -18,6 +20,7 @@
+ import { Registry, invalidateConnectors, monitorIndexOf } from './monitorState.js';
+ import { placementConnector } from './placement.js';
+ import { Keybindings } from './keybindings.js';
++import { VirtualMaximizer } from './maximize.js';
+ import { Persistence } from './persistence.js';
+ import { Indicator } from './indicator.js';
+ import { SwitcherPopup } from './switcherPopup.js';
+@@ -78,6 +81,8 @@
+         this._registry.syncMonitors();
+ 
+         this._windowSignals = new Map();
++        this._maximizer = new VirtualMaximizer(this._registry,
++            (state, index) => this._commitSwitch(state, index, {slid: true}));
+         this._signals = [];
+         this._settleId = 0;
+         this._layoutChanging = false;
+@@ -160,6 +165,8 @@
+     }
+ 
+     disable() {
++        this._maximizer?.destroy();
++        this._maximizer = null;
+         AltTabFilter.unpatch();
+         ScrollFilter.unpatch();
+         OverviewFilter.unpatch();
+@@ -507,6 +514,10 @@
+     }
+ 
+     _trackWindow(window, { trustPlacement = true } = {}) {
++        if (![Meta.WindowType.NORMAL, Meta.WindowType.DIALOG, Meta.WindowType.MODAL_DIALOG].includes(window.get_window_type()) ||
++            window.customJS_ding?._hideFromWindowList ||
++            window.get_gtk_application_id?.() === 'com.rastersoft.ding')
++            return;
+         const state = this._registry.forWindow(window);
+         if (!state)
+             return;
+@@ -519,6 +530,7 @@
+ 
+         const ids = [
+             window.connect('unmanaged', () => {
++                this._maximizer?.closing(window);
+                 // Everywhere, not forWindow(): a window being unmanaged has no
+                 // monitor worth asking about, and it belongs nowhere now. A
+                 // group left holding a dead window would minimize() it on the
+@@ -533,6 +545,7 @@
+         ];
+ 
+         this._windowSignals.set(window, ids);
++        this._maximizer?.track(window);
+     }
+ 
+     /**
+@@ -593,6 +606,9 @@
+                 this._keys.add(name, () => this._switchTo(i - 1));
+         }
+ 
++        this._keys.add('mouse-workspace-next', () => this._switchPointerRelative(1), Shell.ActionMode.NORMAL | Shell.ActionMode.OVERVIEW);
++        this._keys.add('mouse-workspace-prev', () => this._switchPointerRelative(-1), Shell.ActionMode.NORMAL | Shell.ActionMode.OVERVIEW);
++
+         this._keys.add('switch-next', () => this._switchRelative(1));
+         this._keys.add('switch-prev', () => this._switchRelative(-1));
+         this._keys.add('move-window-to-next', () => this._moveFocused(1));
+@@ -672,6 +688,25 @@
+         this._log(message);
+     }
+ 
++    // The pointer, rather than the focused window, selects the target monitor.
++    _switchPointerRelative(delta) {
++        if (Main.sessionMode.isLocked)
++            return;
++        const [x, y] = global.get_pointer();
++        const monitor = Main.layoutManager.monitors.find(m =>
++            x >= m.x && x < m.x + m.width && y >= m.y && y < m.y + m.height);
++        if (!monitor)
++            return;
++        this._log(`mouse action ${delta} monitor=${monitor.index}`);
++        const state = this._registry.forMonitorIndex(monitor.index);
++        if (state) {
++            this._requestSwitch(state, state.activeIndex + delta, delta > 0);
++        } else {
++            const direction = delta > 0 ? Meta.MotionDirection.RIGHT : Meta.MotionDirection.LEFT;
++            Main.wm.actionMoveWorkspace(global.workspace_manager.get_active_workspace().get_neighbor(direction));
++        }
++    }
++
+     _switchRelative(delta) {
+         const state = this._registry.forFocusedMonitor();
+         if (!state) {
+--- a/keybindings.js
++++ b/keybindings.js
+@@ -16,12 +16,14 @@
+         this._registered = [];
+     }
+ 
+-    add(name, handler) {
++    add(name, handler, mode = Shell.ActionMode.NORMAL) {
++        if (!this._settings.get_strv(name).length)
++            return false;
+         const added = Main.wm.addKeybinding(
+             name,
+             this._settings,
+             Meta.KeyBindingFlags.NONE,
+-            Shell.ActionMode.NORMAL,
++            mode,
+             handler
+         );
+ 
+--- /dev/null
++++ b/maximize.js
+@@ -0,0 +1,129 @@
++// SPDX-License-Identifier: GPL-2.0-or-later
++// ScreenToSpace behavior for secondary monitors' virtual workspaces.
++import Meta from 'gi://Meta';
++import GLib from 'gi://GLib';
++import * as Main from 'resource:///org/gnome/shell/ui/main.js';
++import { placementIndex } from './placement.js';
++
++const ORIGIN = Symbol.for('gnome-glass.virtual-maximize-origin');
++
++export class VirtualMaximizer {
++    constructor(registry, commit) {
++        this._registry = registry;
++        this._commit = commit;
++        this._signals = new Map();
++        this._pending = new Map();
++        // The compositor's completed size-change path also covers clients
++        // whose maximize properties settle before our window adoption hook.
++        this._sizeChange = global.window_manager.connect('size-changed', (_wm, actor) => {
++            const window = actor.meta_window;
++            if (window && this._registry.forWindow(window) && window.get_window_type() === Meta.WindowType.NORMAL) {
++                this.track(window);
++                this._schedule(window);
++            }
++        });
++    }
++
++    track(window) {
++        if (this._signals.has(window) || window.get_window_type() !== Meta.WindowType.NORMAL)
++            return;
++        this._signals.set(window, [
++            window.connect('notify::maximized-horizontally', () => this._schedule(window)),
++            window.connect('notify::maximized-vertically', () => this._schedule(window)),
++            window.connect('notify::fullscreen', () => this._schedule(window)),
++        ]);
++    }
++
++    _schedule(window) {
++        const pending = this._pending.get(window);
++        if (pending)
++            GLib.Source.remove(pending);
++        this._pending.set(window, GLib.timeout_add(GLib.PRIORITY_DEFAULT, 150, () => {
++            this._pending.delete(window);
++            this._changed(window);
++            return GLib.SOURCE_REMOVE;
++        }));
++    }
++
++    _changed(window) {
++        const state = this._registry.forWindow(window);
++        if (!state || window.is_fullscreen())
++            return;
++        const maximized = window.maximized_horizontally && window.maximized_vertically;
++        const origin = window[ORIGIN];
++        if (!maximized && origin) {
++            delete window[ORIGIN];
++            if (origin.connector !== state.connector)
++                return;
++            const target = this._homeIndex(state, origin);
++            this._skipEffect(window);
++            state.moveWindowTo(window, target);
++            this._commit(state, target);
++        } else if (maximized && !origin) {
++            const settings = Main.extensionManager.lookup('screentospace@dilzhan.dev')?.stateObj?._settings;
++            if (!settings?.get_boolean('trigger-on-maximize'))
++                return;
++            const from = state.indexOf(window);
++            if (from < 0 || from !== state.activeIndex)
++                return;
++            const peers = state.windowsOn(from).filter(w => w !== window &&
++                w.get_window_type() === Meta.WindowType.NORMAL);
++            if (!peers.length)
++                return;
++            const target = Array.from({length: state.size}, (_, i) => i)
++                .find(i => i !== from && state.windowsOn(i).length === 0);
++            if (target === undefined)
++                return;
++            window[ORIGIN] = {connector: state.connector, peer: peers[0], index: from};
++            this._skipEffect(window);
++            state.moveWindowTo(window, target);
++            this._commit(state, state.indexOf(window));
++        }
++    }
++
++    _homeIndex(state, origin) {
++        const peerIndex = state.indexOf(origin.peer);
++        return peerIndex >= 0 ? peerIndex : Math.min(origin.index, state.size - 1);
++    }
++
++    _skipEffect(window) {
++        const actor = window.get_compositor_private();
++        if (actor)
++            Main.wm.skipNextEffect(actor);
++    }
++
++    closing(window) {
++        const origin = window[ORIGIN];
++        // An unmanaged window may already report monitor -1. Its origin note
++        // still identifies the secondary monitor whose workspace must return.
++        const state = origin ? this._registry.forConnector(origin.connector) :
++            this._registry.forWindow(window);
++        // window-left-monitor may already have untracked a closing window.
++        // Its placement note survives that signal and still identifies its space.
++        const lastIndex = state ? Math.max(state.indexOf(window), placementIndex(window, state.connector)) : -1;
++        const follow = state && lastIndex === state.activeIndex;
++        delete window[ORIGIN];
++        if (state && origin && origin.connector === state.connector && follow) {
++            state.untrack(window);
++            this._commit(state, this._homeIndex(state, origin));
++        }
++        this._disconnect(window);
++    }
++
++    _disconnect(window) {
++        const pending = this._pending.get(window);
++        if (pending) {
++            GLib.Source.remove(pending);
++            this._pending.delete(window);
++        }
++        for (const id of this._signals.get(window) ?? [])
++            window.disconnect(id);
++        this._signals.delete(window);
++    }
++
++    destroy() {
++        global.window_manager.disconnect(this._sizeChange);
++        for (const window of [...this._signals.keys()])
++            this._disconnect(window);
++    }
++}
+--- a/monitorState.js
++++ b/monitorState.js
+@@ -246,8 +246,6 @@
+         let target = index;
+         if (target < 0 || target >= this.size)
+             target = trustPlacement ? this.indexForPlacement(window) : -1;
+-        if (target < 0)
+-            target = this.indexForApp(window);
+         if (target < 0)
+             target = this.activeIndex;
+ 
+--- a/schemas/org.gnome.shell.extensions.workspace-islands.gschema.xml
++++ b/schemas/org.gnome.shell.extensions.workspace-islands.gschema.xml
+@@ -121,5 +121,7 @@
+       <summary>Move the focused window to the previous virtual workspace</summary>
+     </key>
+ 
++    <key name="mouse-workspace-prev" type="as"><default>['&lt;Super&gt;&lt;Control&gt;&lt;Alt&gt;Page_Up']</default><summary>Previous workspace on the monitor under the pointer</summary></key>
++    <key name="mouse-workspace-next" type="as"><default>['&lt;Super&gt;&lt;Control&gt;&lt;Alt&gt;Page_Down']</default><summary>Next workspace on the monitor under the pointer</summary></key>
+   </schema>
+ </schemalist>
+--- a/visibility.js
++++ b/visibility.js
+@@ -52,6 +52,8 @@
+  * @param {boolean} [options.animate] false while a slide is doing the visuals
+  */
+ export function hide(window, { animate = true } = {}) {
++    if (window.minimized && !window[HIDDEN])
++        return; // A manually minimized window does not belong to our teardown.
+     applying = true;
+     try {
+         if (!window.minimized) {
+@@ -69,6 +71,8 @@
+ 
+ /** @param {object} [options] see {@link hide} */
+ export function show(window, { animate = true } = {}) {
++    if (window.minimized && !window[HIDDEN])
++        return;
+     applying = true;
+     try {
+         if (window.minimized) {
+@@ -96,6 +100,8 @@
+  * this flashes every window of every prepared workspace onto the screen.
+  */
+ export function reveal(window) {
++    if (window.minimized && !window[HIDDEN])
++        return;
+     applying = true;
+     try {
+         if (window.minimized) {
