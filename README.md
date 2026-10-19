@@ -39,6 +39,9 @@ arquitecturas se intenta compilar la biblioteca y se detiene si no es compatible
 - Corrección para que pulsar el espacio vacío de la barra no active otra ventana.
 - Blur my Shell 75 modificado: geometría corregida del desenfoque, paneles y
   menús del Shell con tinte y esquinas coherentes, actividades y búsqueda.
+- Archivos (Nautilus): fondo translúcido con desenfoque de lo que hay detrás de
+  la ventana. El texto, los iconos y las miniaturas conservan su opacidad.
+  Usa estilos GTK limitados a Nautilus y la lista de aplicaciones de Blur my Shell.
 - Biblioteca nativa `gnome-rounded-blur`: evita el fondo cuadrado detrás de las
   esquinas redondeadas. Incluye un `.deb` para Mutter `50.1-0ubuntu2.4` amd64 y
   el código fuente para recompilar con otro Mutter 50.
@@ -77,6 +80,14 @@ oculto. Se sigue la pantalla principal elegida en GNOME. Los contenedores de
 Desktop Icons NG en Wayland se excluyen de la barra y del manejo de escritorios
 de ScreenToSpace, conservando los iconos del escritorio.
 
+El estilo de Archivos se instala en
+`~/.config/gtk-4.0/gnome-glass-nautilus.css`, con una importación al comienzo de
+`gtk.css`. Respeta el resto del CSS que ya tengas; si usás `XDG_CONFIG_HOME`,
+se usa esa ubicación. Los menús y diálogos mantienen fondos opacos para
+conservar la legibilidad. Después de modificar solo este estilo, cerrá todas
+las ventanas de Archivos y ejecutá `nautilus --quit` antes de abrirlo otra vez,
+siempre que no esté copiando o moviendo archivos. No hace falta cerrar sesión.
+
 ## Copia y restauración
 
 Antes de reemplazar archivos o ajustes de usuario se crea una copia en:
@@ -86,8 +97,9 @@ Antes de reemplazar archivos o ajustes de usuario se crea una copia en:
 ```
 
 Si usás `XDG_DATA_HOME`, se usa esa ubicación. La copia incluye las extensiones
-y temas anteriores, los valores previos de las claves que se modifican y el
-estado de activación de las extensiones. El instalador imprime su ruta exacta.
+y temas anteriores, los valores previos de las claves que se modifican, los
+archivos CSS de GTK afectados y el estado de activación de las extensiones.
+El instalador imprime su ruta exacta.
 Si falla la instalación de los archivos o ajustes, intenta restaurar esa copia
 automáticamente y devuelve un error.
 
@@ -105,6 +117,8 @@ y no se guardan en este repositorio.
 También se aceptan las copias de la versión 1.0: recuperan los componentes que
 registraron y su lista anterior de extensiones activas. Los archivos de una
 extensión agregada después pueden conservarse instalados, pero desactivados.
+Si la copia es anterior al estilo de Nautilus, se retiran únicamente la
+importación y el archivo de estilo propios de GNOME Glass.
 
 Podés ejecutar el instalador varias veces: cada ejecución vuelve a aplicar el
 mismo perfil y crea su propia copia. No se habilitan actualizaciones automáticas
@@ -116,6 +130,8 @@ instalador para recuperar esta versión.
 
 - `profile/settings.json`: ajustes tipados de GSettings. Los diseños por monitor
   usan índices genéricos; no contiene identificadores de la pantalla original.
+- `profile/nautilus-glass.css`: transparencia del fondo de Archivos, limitada
+  a las ventanas de Nautilus para conservar el aspecto de otras aplicaciones.
 - `profile/packages.json`: dependencias explícitas que resolverá APT.
 - `profile/components.json`: versiones, UUID, repositorios y commits de referencia.
 - `vendor/extensions/`: código exacto de las cinco extensiones instaladas.

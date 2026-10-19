@@ -92,7 +92,7 @@
         },
         "blur": {
           "type": "b",
-          "value": "false"
+          "value": "true"
         },
         "blur-on-overview": {
           "type": "b",
@@ -100,7 +100,7 @@
         },
         "brightness": {
           "type": "d",
-          "value": "1.0"
+          "value": "0.9"
         },
         "color": {
           "type": "(dddd)",
@@ -108,7 +108,7 @@
         },
         "corner-radius": {
           "type": "i",
-          "value": "15"
+          "value": "12"
         },
         "corner-when-maximized": {
           "type": "b",
@@ -120,7 +120,7 @@
         },
         "dynamic-opacity": {
           "type": "b",
-          "value": "true"
+          "value": "false"
         },
         "enable-all": {
           "type": "b",
@@ -136,7 +136,7 @@
         },
         "opacity": {
           "type": "i",
-          "value": "215"
+          "value": "255"
         },
         "pipeline": {
           "type": "s",
@@ -156,7 +156,7 @@
         },
         "whitelist": {
           "type": "as",
-          "value": "@as []"
+          "value": "['org.gnome.Nautilus']"
         }
       }
     },

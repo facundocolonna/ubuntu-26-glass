@@ -16,6 +16,7 @@ import tempfile
 from gi.repository import Gio, GLib
 
 from native import build_package, command, installed_version, native_plan
+import gtk_style
 
 REPO = Path(__file__).resolve().parents[1]
 SHELL_SCHEMA = 'org.gnome.shell'
@@ -146,6 +147,7 @@ def snapshot(profile, components, data_home, backup):
     # Save the exact schemas used for restoration even if extensions are removed.
     for c in components['extensions']:
         shutil.copytree(source_root / c['uuid'] / 'schemas', backup / 'schemas' / c['uuid'])
+    gtk_style.snapshot(backup, state)
     write_json(backup / 'state.json', state)
     return state
 
@@ -212,6 +214,7 @@ def deploy(stage, components, data_home):
         target.parent.mkdir(parents=True, exist_ok=True)
         remove_item(target)
         shutil.move(stage / relative, target)
+    gtk_style.install(REPO)
 
 
 def restore_backup(backup, data_home, components):
@@ -227,6 +230,7 @@ def restore_backup(backup, data_home, components):
         ensure_safe_parents(data_home, relative)
         if f['existed'] and not ((backup / 'files' / relative).exists() or (backup / 'files' / relative).is_symlink()):
             raise RuntimeError(f'Copia incompleta: {relative}')
+    gtk_style.validate(backup, state)
     pause_extensions(components)
     # First restore files; schemas needed by absent extensions live in the backup.
     for f in state['files']:
@@ -234,6 +238,7 @@ def restore_backup(backup, data_home, components):
         remove_item(target)
         if f['existed']:
             copy_item(backup / 'files' / f['relative'], target)
+    gtk_style.restore(backup, state)
     for name, entry in state['settings'].items():
         if entry.get('extension'):
             schema_root = backup / 'schemas'

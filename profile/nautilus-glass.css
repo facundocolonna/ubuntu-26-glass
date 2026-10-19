@@ -1,0 +1,22 @@
+/* GNOME Glass: only Nautilus; keep text, icons and thumbnails fully opaque. */
+window.nautilus-window {
+  --window-bg-color: transparent;
+  --view-bg-color: transparent;
+  --sidebar-bg-color: rgba(120, 134, 155, 0.20);
+  --sidebar-backdrop-color: rgba(120, 134, 155, 0.20);
+  --headerbar-bg-color: rgba(120, 134, 155, 0.15);
+  --headerbar-backdrop-color: rgba(120, 134, 155, 0.15);
+  --popover-bg-color: rgb(42, 48, 58);
+  --dialog-bg-color: rgb(42, 48, 58);
+  background-color: rgba(40, 46, 56, 0.60);
+}
+window.nautilus-window popover,
+window.nautilus-window dialog {
+  --window-bg-color: rgb(40, 46, 56);
+  --view-bg-color: rgb(40, 46, 56);
+  --sidebar-bg-color: rgb(48, 56, 68);
+  --headerbar-bg-color: rgb(48, 56, 68);
+}
+window.nautilus-window .floating-bar {
+  background-color: rgb(48, 56, 68);
+}

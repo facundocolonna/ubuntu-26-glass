@@ -32,6 +32,11 @@ interface.set_double('text-scaling-factor', 1.1)
 shell = i.Gio.Settings.new('org.gnome.shell')
 shell.set_strv('enabled-extensions', ['ubuntu-dock@ubuntu.com', 'example@unrelated'])
 i.Gio.Settings.sync()
+gtk_css = Path(os.environ['XDG_CONFIG_HOME']) / 'gtk-4.0/gtk.css'
+gtk_css.parent.mkdir(parents=True, exist_ok=True)
+original_css = '/* Existing user customizations */\nbutton { padding: 7px; }\n'
+gtk_css.write_text(original_css)
+gtk_glass = gtk_css.with_name('gnome-glass-nautilus.css')
 
 # A v1.0 backup has four extensions and no ScreenToSpace/Mutter settings.
 legacy_components = dict(components)
@@ -41,9 +46,15 @@ legacy_profile = {'format': 1, 'schemas': {
     name: entry for name, entry in profile['schemas'].items()
     if name not in ['org.gnome.shell.extensions.screentospace', 'org.gnome.mutter']}}
 i.snapshot(legacy_profile, legacy_components, data, base / 'backup-v1')
+legacy_state = i.read_json(base / 'backup-v1/state.json')
+legacy_state.pop('config_home', None)
+legacy_state.pop('config_files', None)
+i.write_json(base / 'backup-v1/state.json', legacy_state)
 
 
 def verify_installed():
+    assert gtk_css.read_text() == i.gtk_style.IMPORT + original_css
+    assert gtk_glass.read_text() == (repo / 'profile/nautilus-glass.css').read_text()
     for name, entry in profile['schemas'].items():
         settings, _ = i.schema_settings(name, entry, data / 'gnome-shell/extensions')
         for key, spec in entry['values'].items():
@@ -59,6 +70,8 @@ def verify_installed():
 
 
 def verify_original():
+    assert gtk_css.read_text() == original_css
+    assert not gtk_glass.exists()
     assert (old_extension / 'old-file.txt').read_text() == 'Previous extension content\n'
     assert (old_theme / 'old-file.txt').read_text() == 'Previous icon content\n'
     assert not (data / 'icons/WhiteSur-dark').exists()
@@ -100,6 +113,25 @@ else:
 verify_original()
 print('PASS rollback after a failure during partial deployment')
 
+# Fail after GTK has been changed, so rollback must restore user CSS as well.
+stage = base / 'stage-after-gtk-failure'
+i.stage_payload(repo, stage, components)
+apply = i.apply_profile
+def injected_failure(*args):
+    assert gtk_css.read_text().startswith(i.gtk_style.IMPORT)
+    raise RuntimeError('Injected failure after GTK deployment')
+i.apply_profile = injected_failure
+try:
+    i.install_user_profile(profile, components, data, stage, base / 'backup-after-gtk-failure')
+except RuntimeError:
+    pass
+else:
+    raise AssertionError('Expected injected failure')
+finally:
+    i.apply_profile = apply
+verify_original()
+print('PASS GTK rollback: original user CSS and missing glass stylesheet restored')
+
 stage = base / 'stage-legacy-restore'
 i.stage_payload(repo, stage, components)
 i.install_user_profile(profile, components, data, stage, base / 'backup-before-legacy-restore')
@@ -108,6 +140,8 @@ assert shell.get_strv('enabled-extensions') == ['ubuntu-dock@ubuntu.com', 'examp
 assert interface.get_string('icon-theme') == 'Yaru'
 assert (old_extension / 'old-file.txt').read_text() == 'Previous extension content\n'
 assert (old_theme / 'old-file.txt').read_text() == 'Previous icon content\n'
+assert gtk_css.read_text() == original_css
+assert not gtk_glass.exists()
 for name, entry in legacy_profile['schemas'].items():
     if 'extension' in entry:
         settings, _ = i.schema_settings(name, entry, repo / 'vendor/extensions')
