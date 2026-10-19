@@ -273,7 +273,22 @@
  export function setPanelElementPositions(settings, monitorIndex, value) {
 --- a/stylesheet.css
 +++ b/stylesheet.css
-@@ -269,3 +269,15 @@
+@@ -155,7 +155,13 @@
+ }
+ 
+ #dashtopanelScrollview .notification-badge {
+-	background-color: rgba(214, 0, 0, 0.8);
++	background-color: rgba(0, 120, 228, 0.94);
++	border: 1px solid rgba(210, 232, 255, 0.55);
++	border-radius: 999px;
++	padding: 0 4px;
++	min-width: 13px;
++	font-weight: 600;
++	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.28);
+ }
+ 
+ #dashtopanelScrollview .progress-bar {
+@@ -269,3 +275,15 @@
  #uiGroup.br20 .dashtopanelPanel.dock .showdesktop-button-vertical {
  	border-radius: 0 0 20px 20px !important;
  }
