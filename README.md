@@ -203,7 +203,8 @@ así como la visibilidad global de la barra. Requiere
 la herencia del diseño, CPU/RAM y alineación del desenfoque en cada barra.
 También prueba la migración desde las versiones oficiales a las locales,
 descarta las superficies de escritorio y reconstruye de una a tres barras
-sin indicadores duplicados.
+sin indicadores duplicados. Fuerza activaciones repetidas del monitor y un
+indicador huérfano para verificar que su recuperación deja uno por pantalla.
 
 `./tests/mouse-workspaces.sh` prueba los atajos que emite el mouse con tres
 pantallas virtuales: independencia entre pantallas, ventanas nuevas en el

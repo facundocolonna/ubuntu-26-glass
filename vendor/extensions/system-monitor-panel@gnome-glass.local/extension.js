@@ -3061,23 +3061,50 @@ const PANEL_POSITIONS = {
 
 export default class SystemMonitorExtension extends Extension {
     enable() {
-        this._settings = this.getSettings();
-        this._secondaryIndicators = new Map();
-        this._syncSourceId = 0;
-        this._indicator = new SystemMonitorIndicator(this);
+        // Shell can rebase extensions while another enable is still pending.
+        // Preserve the existing actors and collectors on a repeated call.
+        if (this._indicator && Main.panel.statusArea[this.uuid] === this._indicator) {
+            this._syncPanels();
+            return;
+        }
+        if (this._indicator)
+            this.disable();
+        this._removeStaleIndicators();
+        try {
+            this._settings = this.getSettings();
+            this._secondaryIndicators = new Map();
+            this._syncSourceId = 0;
+            this._indicator = new SystemMonitorIndicator(this);
 
-        Main.panel.addToStatusArea(this.uuid, this._indicator);
-        this._applyPosition();
+            Main.panel.addToStatusArea(this.uuid, this._indicator);
+            this._applyPosition();
 
-        this._settings.connectObject(
-            'changed::panel-position', () => this._applyPosition(), this);
-        this._monitorsId = Main.layoutManager.connect('monitors-changed', () => this._queuePanelSync());
-        this._extensionsId = Main.extensionManager.connect('extension-state-changed', (_manager, extension) => {
-            if (extension.uuid === 'dash-to-panel@jderose9.github.com')
-                this._queuePanelSync();
-        });
-        this._syncPanels();
-        this._updateNotice = new UpdateNotice(this, this._settings);
+            this._settings.connectObject(
+                'changed::panel-position', () => this._applyPosition(), this);
+            this._monitorsId = Main.layoutManager.connect('monitors-changed', () => this._queuePanelSync());
+            this._extensionsId = Main.extensionManager.connect('extension-state-changed', (_manager, extension) => {
+                if (extension.uuid === 'dash-to-panel@jderose9.github.com')
+                    this._queuePanelSync();
+            });
+            this._syncPanels();
+            this._updateNotice = new UpdateNotice(this, this._settings);
+        } catch (error) {
+            this.disable();
+            throw error;
+        }
+    }
+
+    _removeStaleIndicators() {
+        const panels = new Set([Main.panel, ...(global.dashToPanel?.panels ?? []).map(p => p.panel)]);
+        for (const panel of panels) {
+            for (const role of [this.uuid, 'system-monitor-panel@naimur']) {
+                if (role !== this.uuid && Main.extensionManager.lookup(role)?.state === 1)
+                    continue;
+                const indicator = panel.statusArea[role];
+                if (indicator?._extension?.uuid === role)
+                    indicator.destroy();
+            }
+        }
     }
 
     _applyPosition() {
@@ -3154,9 +3181,9 @@ export default class SystemMonitorExtension extends Extension {
     }
 
     _clearSecondaryIndicators() {
-        for (const indicator of this._secondaryIndicators.values())
+        for (const indicator of this._secondaryIndicators?.values() ?? [])
             indicator.destroy();
-        this._secondaryIndicators.clear();
+        this._secondaryIndicators?.clear();
     }
 
     disable() {

@@ -45,6 +45,14 @@ export async function run() {
             const indicator = panel.panel.statusArea['system-monitor-panel@gnome-glass.local'];
             if (!indicator || panel.panel._leftBox.get_first_child() !== indicator.container)
                 throw new Error(`Missing left CPU/RAM on monitor ${panel.monitor.index}`);
+            function countIndicators(actor) {
+                let count = actor._panelBoxes && actor._extension?.uuid === 'system-monitor-panel@gnome-glass.local' ? 1 : 0;
+                for (const child of actor.get_children())
+                    count += countIndicators(child);
+                return count;
+            }
+            if (countIndicators(panel.panel) !== 1)
+                throw new Error(`Duplicate monitor widgets on screen ${panel.monitor.index}`);
             for (const [name, box] of indicator._panelBoxes) {
                 if (box.container.visible !== ['cpu', 'memory'].includes(name))
                     throw new Error(`Unexpected metric ${name} on monitor ${panel.monitor.index}`);
@@ -59,6 +67,28 @@ export async function run() {
     }
     checkPanels(3);
     print('MULTIMONITOR_PASS centered_apps=true app_grid_button=false cpu_ram=3_panels');
+
+    const monitorExtension = Main.extensionManager.lookup('system-monitor-panel@gnome-glass.local').stateObj;
+    const primaryIndicator = monitorExtension._indicator;
+    const secondaryIndicators = [...monitorExtension._secondaryIndicators.values()];
+    monitorExtension.enable();
+    monitorExtension.enable();
+    await Scripting.sleep(150);
+    checkPanels(3);
+    if (monitorExtension._indicator !== primaryIndicator ||
+        [...monitorExtension._secondaryIndicators.values()].some((indicator, i) => indicator !== secondaryIndicators[i]))
+        throw new Error('Repeated enable replaced existing indicators or collectors');
+    const Indicator = primaryIndicator.constructor;
+    monitorExtension.disable();
+    // Reproduce the registered widget left behind by an interrupted enable.
+    const stale = new Indicator(monitorExtension);
+    Main.panel.addToStatusArea(monitorExtension.uuid, stale);
+    monitorExtension.enable();
+    await Scripting.sleep(2300);
+    checkPanels(3);
+    if (!stale._destroyed)
+        throw new Error('An orphaned registered indicator survived recovery');
+    print('MONITOR_ENABLE_PASS repeated_enable=preserve orphan=cleaned single_widget_per_screen=true');
 
     // Reproduce an official update replacing the local patches, then exercise
     // the same one-time migration that runs after the real next login.
