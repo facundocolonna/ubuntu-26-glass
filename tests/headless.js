@@ -8,15 +8,15 @@ export const METRICS = {};
 export async function run() {
     Main.overview.hide();
     await Scripting.sleep(5000);
-    const uuids = ['dash-to-panel@jderose9.github.com', 'blur-my-shell@aunetx',
-        'rounded-window-corners@fxgn', 'system-monitor-panel@naimur',
+    const uuids = ['dash-to-panel@jderose9.github.com', 'blur-my-shell@gnome-glass.local',
+        'rounded-window-corners@fxgn', 'system-monitor-panel@gnome-glass.local',
         'screentospace@dilzhan.dev', 'workspace-islands@danielbernalo.github.io'];
     for (const uuid of uuids) {
         const extension = Main.extensionManager.lookup(uuid);
         if (extension?.state !== 1)
             throw new Error(`${uuid}: state=${extension?.state}, error=${extension?.error}`);
     }
-    const monitor = Main.panel.statusArea['system-monitor-panel@naimur'];
+    const monitor = Main.panel.statusArea['system-monitor-panel@gnome-glass.local'];
     for (const [name, box] of monitor._panelBoxes) {
         const visible = ['cpu', 'memory'].includes(name);
         if (box.container.visible !== visible)
@@ -29,13 +29,13 @@ export async function run() {
     const [x, y] = monitor.container.get_transformed_position();
     if (x < 0 || x > 100 || y < 600)
         throw new Error(`CPU/RAM is not in the bottom left: ${x},${y}`);
-    const blur = Main.extensionManager.lookup('blur-my-shell@aunetx').stateObj;
-    if (!blur.getSettings().get_boolean('rounded-blur-found'))
-        throw new Error('Native rounded blur was not detected');
+    const blur = Main.extensionManager.lookup('blur-my-shell@gnome-glass.local').stateObj;
+    if (!blur._panel_blur.actors_list.some(actors => actors.pipeline.captureEffect))
+        throw new Error('Dynamic rounded panel blur was not created');
     const activities = new Gio.Settings({schema_id: 'org.gnome.desktop.interface'});
     if (!activities.get_boolean('enable-hot-corners'))
         throw new Error('Hot corner not enabled');
-    print(`GNOME_GLASS_HEADLESS_PASS all_extensions=active native_blur=true cpu=${monitor._cpuBox.label.text} ram=${monitor._memBox.label.text} left=${x},${y}`);
+    print(`GNOME_GLASS_HEADLESS_PASS all_extensions=active dynamic_blur=true cpu=${monitor._cpuBox.label.text} ram=${monitor._memBox.label.text} left=${x},${y}`);
     const source = Gio.File.new_for_path(`${GLib.get_user_data_dir()}/gnome-shell/extensions/dash-to-panel@jderose9.github.com/appIcons.js`);
     const {getInterestingWindows} = await import(source.get_uri());
     const normalWindows = () => global.get_window_actors().map(a => a.meta_window)

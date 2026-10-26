@@ -30,7 +30,7 @@ interface = i.Gio.Settings.new('org.gnome.desktop.interface')
 interface.set_string('icon-theme', 'Yaru')
 interface.set_double('text-scaling-factor', 1.1)
 shell = i.Gio.Settings.new('org.gnome.shell')
-shell.set_strv('enabled-extensions', ['ubuntu-dock@ubuntu.com', 'example@unrelated'])
+shell.set_strv('enabled-extensions', ['ubuntu-dock@ubuntu.com', 'example@unrelated', 'blur-my-shell@aunetx', 'system-monitor-panel@naimur'])
 i.Gio.Settings.sync()
 gtk_css = Path(os.environ['XDG_CONFIG_HOME']) / 'gtk-4.0/gtk.css'
 gtk_css.parent.mkdir(parents=True, exist_ok=True)
@@ -51,6 +51,26 @@ legacy_state.pop('config_home', None)
 legacy_state.pop('config_files', None)
 i.write_json(base / 'backup-v1/state.json', legacy_state)
 
+# Older real backups recorded upstream UUIDs. Keep them restorable after forks.
+shutil.copytree(base / 'backup-v1', base / 'backup-upstream-ids')
+alias_state = i.read_json(base / 'backup-upstream-ids/state.json')
+for component in components['extensions']:
+    old = component.get('upstream_uuid')
+    if not old:
+        continue
+    local = component['uuid']
+    for item in alias_state['files']:
+        if item['relative'] == f'gnome-shell/extensions/{local}':
+            item['relative'] = f'gnome-shell/extensions/{old}'
+    for entry in alias_state['settings'].values():
+        if entry.get('extension') == local:
+            entry['extension'] = old
+    for prefix in ['files/gnome-shell/extensions', 'schemas']:
+        source = base / 'backup-upstream-ids' / prefix / local
+        if source.exists():
+            source.rename(source.with_name(old))
+i.write_json(base / 'backup-upstream-ids/state.json', alias_state)
+
 
 def verify_installed():
     assert gtk_css.read_text() == i.gtk_style.IMPORT + original_css
@@ -62,7 +82,9 @@ def verify_installed():
     enabled = shell.get_strv('enabled-extensions')
     assert 'example@unrelated' in enabled
     assert 'ubuntu-dock@ubuntu.com' not in enabled
-    assert enabled.index('dash-to-panel@jderose9.github.com') < enabled.index('blur-my-shell@aunetx')
+    assert 'blur-my-shell@aunetx' not in enabled
+    assert 'system-monitor-panel@naimur' not in enabled
+    assert enabled.index('dash-to-panel@jderose9.github.com') < enabled.index('blur-my-shell@gnome-glass.local')
     for c in components['extensions']:
         assert (data / 'gnome-shell/extensions' / c['uuid'] / 'metadata.json').exists()
     for name in components['themes']:
@@ -77,7 +99,7 @@ def verify_original():
     assert not (data / 'icons/WhiteSur-dark').exists()
     assert interface.get_string('icon-theme') == 'Yaru'
     assert interface.get_double('text-scaling-factor') == 1.1
-    assert shell.get_strv('enabled-extensions') == ['ubuntu-dock@ubuntu.com', 'example@unrelated']
+    assert shell.get_strv('enabled-extensions') == ['ubuntu-dock@ubuntu.com', 'example@unrelated', 'blur-my-shell@aunetx', 'system-monitor-panel@naimur']
     for name, entry in profile['schemas'].items():
         if 'extension' in entry:
             settings, _ = i.schema_settings(name, entry, repo / 'vendor/extensions')
@@ -97,7 +119,11 @@ i.install_user_profile(profile, components, data, stage, base / 'backup-2')
 verify_installed()
 i.restore_backup(base / 'backup-2', data, components)
 verify_installed()
+pending = Path(os.environ['XDG_CONFIG_HOME']) / 'autostart/gnome-glass-local-extensions.desktop'
+pending.parent.mkdir(exist_ok=True)
+pending.write_text('[Desktop Entry]\nX-GNOME-Glass-Migration=true\n')
 i.restore_backup(base / 'backup-1', data, components)
+assert not pending.exists(), 'Restore must cancel a pending local-extension migration'
 verify_original()
 print('PASS reinstall and restore: old files, missing files, user values and unset keys')
 
@@ -136,7 +162,7 @@ stage = base / 'stage-legacy-restore'
 i.stage_payload(repo, stage, components)
 i.install_user_profile(profile, components, data, stage, base / 'backup-before-legacy-restore')
 i.restore_backup(base / 'backup-v1', data, components)
-assert shell.get_strv('enabled-extensions') == ['ubuntu-dock@ubuntu.com', 'example@unrelated']
+assert shell.get_strv('enabled-extensions') == ['ubuntu-dock@ubuntu.com', 'example@unrelated', 'blur-my-shell@aunetx', 'system-monitor-panel@naimur']
 assert interface.get_string('icon-theme') == 'Yaru'
 assert (old_extension / 'old-file.txt').read_text() == 'Previous extension content\n'
 assert (old_theme / 'old-file.txt').read_text() == 'Previous icon content\n'
@@ -147,3 +173,8 @@ for name, entry in legacy_profile['schemas'].items():
         settings, _ = i.schema_settings(name, entry, repo / 'vendor/extensions')
         assert all(settings.get_user_value(key) is None for key in entry['values'])
 print('PASS restore of a v1.0 backup: original profile and activation restored; new extension inactive')
+
+i.restore_backup(base / 'backup-upstream-ids', data, components)
+assert (data / 'gnome-shell/extensions/blur-my-shell@aunetx/old-file.txt').read_text() == 'Previous extension content\n'
+assert shell.get_strv('enabled-extensions') == ['ubuntu-dock@ubuntu.com', 'example@unrelated', 'blur-my-shell@aunetx', 'system-monitor-panel@naimur']
+print('PASS restore of upstream UUID backup: old paths and schemas are accepted after local fork migration')

@@ -24,6 +24,8 @@ def installed_version(package):
 
 def native_plan(repo, component):
     version = installed_version(component['mutter_package'])
+    if component.get('required') is False:
+        return 'not-needed', version
     arch = query('dpkg', '--print-architecture')
     if not version:
         raise RuntimeError('No está instalado libmutter-18-0; se requiere GNOME 50.')

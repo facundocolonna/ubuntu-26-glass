@@ -4,7 +4,7 @@ repo_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 test_dir="$(mktemp -d)"
 trap 'rm -rf -- "$test_dir"' EXIT
 ln -s "$repo_dir/tests/headless-prepare.py" "$test_dir/prepare.py"
-timeout -k 5s 55s dbus-run-session -- env GDK_BACKEND=wayland GNOME_GLASS_TEST_MONITORS=3 \
+timeout -k 5s 55s dbus-run-session -- env GDK_BACKEND=wayland GNOME_GLASS_TEST_MONITORS=3 GNOME_GLASS_TEST_UPSTREAMS=1 \
     gnome-shell-test-tool --headless \
     --wrap "/usr/bin/python3 $test_dir/prepare.py" \
     "$repo_dir/tests/multimonitor.js"

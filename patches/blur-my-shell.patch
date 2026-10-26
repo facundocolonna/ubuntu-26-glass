@@ -1,74 +1,275 @@
---- a/components/panel.js
-+++ b/components/panel.js
-@@ -412,20 +412,36 @@
-             const clip_h = Math.ceil(geometry_height) +
-                 inset + workspace_edge_inset;
+--- a/components/appfolders.js
++++ b/components/appfolders.js
+@@ -17,7 +17,7 @@
+ ];
  
--            background.set_clip(clip_x, clip_y, clip_w, clip_h);
--            background.x = g_x - x + inset;
--            background.y = offset + g_y - y + inset;
-+            // Match floating Dash to Panel geometry without extra blur margins.
-+            if (actors.is_dtp_panel) {
-+                background.set_clip(x, y, geometry_width, geometry_height);
-+                background.x = g_x - x;
-+                background.y = g_y - y;
-+            } else {
-+                background.set_clip(clip_x, clip_y, clip_w, clip_h);
-+                background.x = g_x - x + inset;
-+                background.y = offset + g_y - y + inset;
-+            }
-         } else {
--            // updated coordinates for dynamic blur
--            if (actors.is_dtp_panel) {
--                background.x = wrapper.x + geometry_actor.x;
--                background.y = wrapper.y + geometry_actor.y;
--            } else {
--                background.x = geometry_actor.x;
--                background.y = geometry_actor.y;
--            }
--            background.width = geometry_width;
--            background.height = geometry_height;
-+            // Convert the panel bounds into the blur group's own coordinate space.
-+            // Its allocation can already include Dash to Panel's margins.
-+            const group = actors.widgets.background_group;
-+            if (!group)
-+                return;
-+            const [stage_x, stage_y] = geometry_actor.get_transformed_position();
-+            const [stage_w, stage_h] = geometry_actor.get_transformed_size();
-+            // Meta.BackgroundGroup has zero size: transform_stage_point() fails.
-+            // Both actors share the same unrotated panel coordinate system.
-+            const [group_x, group_y] = group.get_transformed_position();
-+            const scale_x = stage_w / geometry_width;
-+            const scale_y = stage_h / geometry_height;
-+            if (scale_x <= 0 || scale_y <= 0)
-+                return;
-+            background.set_position(
-+                (stage_x - group_x) / scale_x,
-+                (stage_y - group_y) / scale_y
-+            );
-+            background.set_size(geometry_width, geometry_height);
-         }
+ const AppFolderSurface = GObject.registerClass({
+-    GTypeName: 'BmsAppFolderSurface',
++    GTypeName: 'GnomeGlassBmsAppFolderSurface',
+ }, class AppFolderSurface extends St.Widget {
+     vfunc_allocate(box) {
+         super.vfunc_allocate(box);
+--- a/components/panel/panel_background.js
++++ b/components/panel/panel_background.js
+@@ -93,15 +93,23 @@
+         background.x = g_x - x;
+         background.y = g_y - y;
+     } else {
+-        if (actors.is_dtp_panel) {
+-            background.x = wrapper.x + geometry_actor.x;
+-            background.y = wrapper.y + geometry_actor.y;
+-        } else {
+-            background.x = geometry_actor.x;
+-            background.y = geometry_actor.y;
+-        }
+-        background.width = geometry_width;
+-        background.height = geometry_height;
++        // Floating panels and their background group can already include the
++        // same margins. Convert stage bounds once, rather than adding them twice.
++        const group = actors.widgets.background_group;
++        if (!group)
++            return false;
++        const [stage_x, stage_y] = geometry_actor.get_transformed_position();
++        const [stage_w, stage_h] = geometry_actor.get_transformed_size();
++        const [group_x, group_y] = group.get_transformed_position();
++        const scale_x = stage_w / geometry_width;
++        const scale_y = stage_h / geometry_height;
++        if (!(scale_x > 0 && scale_y > 0))
++            return false;
++        background.set_position(
++            (stage_x - group_x) / scale_x,
++            (stage_y - group_y) / scale_y
++        );
++        background.set_size(geometry_width, geometry_height);
+     }
  
-         // update the monitor panel is on
---- a/effects/corner.js
-+++ b/effects/corner.js
-@@ -197,8 +197,8 @@
-             [this._clip_x0, this._clip_y0, this._clip_width, this._clip_height] = value;
-             uniforms.set_uniform(this, 'clip_x0', parseFloat(this._clip_x0 - 1e-6));
-             uniforms.set_uniform(this, 'clip_y0', parseFloat(this._clip_y0 - 1e-6));
--            uniforms.set_uniform(this, 'clip_width', parseFloat(this._clip_width <= 0 ? -1 : this._clip_width + 3 - 1e-6));
--            uniforms.set_uniform(this, 'clip_height', parseFloat(this._clip_height <= 0 ? -1 : this._clip_height + 3 - 1e-6));
-+            uniforms.set_uniform(this, 'clip_width', parseFloat(this._clip_width <= 0 ? -1 : this._clip_width - 1e-6));
-+            uniforms.set_uniform(this, 'clip_height', parseFloat(this._clip_height <= 0 ? -1 : this._clip_height - 1e-6));
-             this.update_radius();
-         }
+     return true;
+--- a/components/popup/stack_mask.js
++++ b/components/popup/stack_mask.js
+@@ -74,4 +74,4 @@
+ };
  
+ export const StackMaskEffect = GObject.registerClass(
+-    { GTypeName: 'BmsPopupStackMaskEffect' }, StackMaskEffectClass);
++    { GTypeName: 'GnomeGlassBmsPopupStackMaskEffect' }, StackMaskEffectClass);
+--- a/components/popup/surface/allocation.js
++++ b/components/popup/surface/allocation.js
+@@ -4,6 +4,7 @@
+ // Modal dialogs use a BinLayout, which can resize or center blur overlays.
+ // Preserve the requested bounds for dynamic blur and static wallpaper containers.
+ export const PopupBlurAllocation = GObject.registerClass(
++{GTypeName: 'GnomeGlassPopupBlurAllocation'},
+ class PopupBlurAllocation extends Clutter.Constraint {
+     set_geometry(x, y, width, height) {
+         const geometry = this.geometry;
+--- a/effects/blur/dual_kawase_blur.js
++++ b/effects/blur/dual_kawase_blur.js
+@@ -45,7 +45,7 @@
+ };
+ 
+ const DualKawaseBlurEffectClass = utils.IS_IN_PREFERENCES ? null : GObject.registerClass({
+-    GTypeName: 'BmsDualKawaseBlurEffect',
++    GTypeName: 'GnomeGlassBmsDualKawaseBlurEffect',
+     Properties: {
+         'unscaled-radius': GObject.ParamSpec.double(
+             'unscaled-radius', null, null,
+--- a/effects/color/color.js
++++ b/effects/color/color.js
+@@ -15,7 +15,7 @@
+ 
+ 
+ const COLOR_EFFECT_META = {
+-        GTypeName: "ColorEffect",
++        GTypeName: "GnomeGlassColorEffect",
+         Properties: {
+             'red': GObject.ParamSpec.double(
+                 `red`,
+--- a/effects/color/hsl_to_rgb.js
++++ b/effects/color/hsl_to_rgb.js
+@@ -12,7 +12,7 @@
+ 
+ 
+ const HSL_TO_RGB_EFFECT_META = {
+-        GTypeName: "HslToRgbEffect",
++        GTypeName: "GnomeGlassHslToRgbEffect",
+         Properties: {
+             'opacity_factor': GObject.ParamSpec.double(
+                 `opacity_factor`,
+--- a/effects/color/luminosity.js
++++ b/effects/color/luminosity.js
+@@ -12,7 +12,7 @@
+ 
+ 
+ const LUMINOSITY_EFFECT_META = {
+-        GTypeName: "LuminosityEffect",
++        GTypeName: "GnomeGlassLuminosityEffect",
+         Properties: {
+             'brightness_shift': GObject.ParamSpec.double(
+                 `brightness_shift`,
+--- a/effects/color/rgb_to_hsl.js
++++ b/effects/color/rgb_to_hsl.js
+@@ -12,7 +12,7 @@
+ 
+ 
+ const RGB_TO_HSL_EFFECT_META = {
+-        GTypeName: "RgbToHslEffect",
++        GTypeName: "GnomeGlassRgbToHslEffect",
+         Properties: {
+             'opacity_factor': GObject.ParamSpec.double(
+                 `opacity_factor`,
+--- a/effects/corner/corner.js
++++ b/effects/corner/corner.js
+@@ -16,7 +16,7 @@
+ 
+ 
+ const CORNER_EFFECT_META = {
+-        GTypeName: "CornerEffect",
++        GTypeName: "GnomeGlassCornerEffect",
+         Properties: {
+             'radius': GObject.ParamSpec.double(
+                 `radius`,
+--- a/effects/refraction/refraction_config.js
++++ b/effects/refraction/refraction_config.js
+@@ -41,7 +41,7 @@
+ }
+ 
+ export const REFRACTION_EFFECT_META = {
+-    GTypeName: 'RefractionEffect',
++    GTypeName: 'GnomeGlassRefractionEffect',
+     Properties: {
+         strength: doubleProperty(
+             'strength', 'Strength', 'Refraction strength',
+--- a/effects/texture/derivative.js
++++ b/effects/texture/derivative.js
+@@ -13,7 +13,7 @@
+ 
+ 
+ const DERIVATIVE_EFFECT_META = {
+-        GTypeName: "DerivativeEffect",
++        GTypeName: "GnomeGlassDerivativeEffect",
+         Properties: {
+             'operation': GObject.ParamSpec.int(
+                 `operation`,
+--- a/effects/texture/downscale.js
++++ b/effects/texture/downscale.js
+@@ -13,7 +13,7 @@
+ 
+ 
+ const DOWNSCALE_EFFECT_META = {
+-        GTypeName: "DownscaleEffect",
++        GTypeName: "GnomeGlassDownscaleEffect",
+         Properties: {
+             'divider': GObject.ParamSpec.int(
+                 `divider`,
+--- a/effects/texture/noise.js
++++ b/effects/texture/noise.js
+@@ -12,7 +12,7 @@
+ 
+ 
+ const NOISE_EFFECT_META = {
+-        GTypeName: "NoiseEffect",
++        GTypeName: "GnomeGlassNoiseEffect",
+         Properties: {
+             'noise': GObject.ParamSpec.double(
+                 `noise`,
+--- a/effects/texture/pixelize.js
++++ b/effects/texture/pixelize.js
+@@ -49,7 +49,7 @@
+ export const PixelizeEffect = utils.IS_IN_PREFERENCES
+     ? { default_params: DEFAULT_PARAMS }
+     : GObject.registerClass({
+-        GTypeName: "PixelizeEffect",
++        GTypeName: "GnomeGlassPixelizeEffect",
+         Properties: {
+             'factor': GObject.ParamSpec.int(
+                 `factor`,
+--- a/effects/texture/upscale.js
++++ b/effects/texture/upscale.js
+@@ -13,7 +13,7 @@
+ 
+ 
+ const UPSCALE_EFFECT_META = {
+-        GTypeName: "UpscaleEffect",
++        GTypeName: "GnomeGlassUpscaleEffect",
+         Properties: {
+             'factor': GObject.ParamSpec.int(
+                 `factor`,
+--- a/effects/wave/wave_config.js
++++ b/effects/wave/wave_config.js
+@@ -11,7 +11,7 @@
+ };
+ 
+ export const WAVE_EFFECT_META = {
+-        GTypeName: "BMSWaveEffect",
++        GTypeName: "GnomeGlassBMSWaveEffect",
+         Properties: {
+             'frequency': GObject.ParamSpec.double(
+                 `frequency`,
+--- a/metadata.json
++++ b/metadata.json
+@@ -1,12 +1,11 @@
+ {
+-  "_generated": "Generated by SweetTooth, do not edit",
+   "description": "Adds a blur look to different parts of GNOME Shell, including the top panel, dash and overview.\n\nYou can support my work by sponsoring me on:\n- GitHub: https://github.com/sponsors/aunetx\n- Ko-fi: https://ko-fi.com/aunetx\n\nNote: if the extension shows an error after updating, restart your session to see whether it persists. This is due to a GNOME Shell bug that the extension cannot work around.",
+   "donations": {
+     "github": "aunetx",
+     "kofi": "aunetx"
+   },
+   "gettext-domain": "blur-my-shell@aunetx",
+-  "name": "Blur my Shell",
++  "name": "Blur my Shell (GNOME Glass)",
+   "original-authors": [
+     "me@aunetx.dev"
+   ],
+@@ -24,6 +23,6 @@
+     "51"
+   ],
+   "url": "https://github.com/aunetx/blur-my-shell",
+-  "uuid": "blur-my-shell@aunetx",
++  "uuid": "blur-my-shell@gnome-glass.local",
+   "version": 76
+-}
+\ No newline at end of file
++}
+--- a/render/backdrop/capture.js
++++ b/render/backdrop/capture.js
+@@ -138,7 +138,7 @@
+ }
+ 
+ export const BackdropCaptureEffect = GObject.registerClass({
+-    GTypeName: 'BmsBackdropCaptureEffect',
++    GTypeName: 'GnomeGlassBmsBackdropCaptureEffect',
+ }, class BackdropCaptureEffect extends Clutter.Effect {
+     _init(contentActor) {
+         super._init();
+--- a/render/backdrop/output.js
++++ b/render/backdrop/output.js
+@@ -7,7 +7,7 @@
+ /// GJS keeps alive until the next garbage collection, along with every framebuffer a screencast
+ /// paints the stage into.
+ export const BackdropOutputEffect = GObject.registerClass({
+-    GTypeName: 'BmsBackdropOutputEffect',
++    GTypeName: 'GnomeGlassBmsBackdropOutputEffect',
+ }, class BackdropOutputEffect extends Clutter.Effect {
+     _init(capture) {
+         super._init();
+--- a/render/shader/shader_effect.js
++++ b/render/shader/shader_effect.js
+@@ -13,7 +13,7 @@
+ } from './texture_region.js';
+ 
+ export const SurfaceShaderEffect = GObject.registerClass({
+-    GTypeName: 'BmsSurfaceShaderEffect',
++    GTypeName: 'GnomeGlassBmsSurfaceShaderEffect',
+ }, class SurfaceShaderEffect extends Clutter.ShaderEffect {
+     _init() {
+         super._init();
 --- a/stylesheet.css
 +++ b/stylesheet.css
-@@ -8,3 +8,59 @@
- @import url("styles/overview.css");
- @import url("styles/appfolders.css");
- @import url("styles/panel-light-text.css");
+@@ -3893,3 +3893,59 @@
+ .panel-light-text #panel .panel-button.screen-sharing-indicator:hover {
+     box-shadow: inset 0 0 0 100px rgba(255, 120, 0, 0.9);
+ }
 +
 +/* Personal tint: match Dash to Panel. */
 +.bms-popup-surface-dark .popup-menu-content,

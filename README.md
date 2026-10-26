@@ -41,18 +41,17 @@ arquitecturas se intenta compilar la biblioteca y se detiene si no es compatible
   en la barra predeterminada; conservan «9+» y los números de los atajos
   mantienen su tamaño y posición originales.
 - Corrección para que pulsar el espacio vacío de la barra no active otra ventana.
-- Blur my Shell 75 modificado: geometría corregida del desenfoque, paneles y
+- Blur my Shell 76 (GNOME Glass): geometría corregida del desenfoque, paneles y
   menús del Shell con tinte y esquinas coherentes, actividades y búsqueda.
 - Archivos (Nautilus): fondo translúcido con desenfoque de lo que hay detrás de
   la ventana. El texto, los iconos y las miniaturas conservan su opacidad.
   Usa estilos GTK limitados a Nautilus y la lista de aplicaciones de Blur my Shell.
-- Biblioteca nativa `gnome-rounded-blur`: evita el fondo cuadrado detrás de las
-  esquinas redondeadas. Incluye un `.deb` para Mutter `50.1-0ubuntu2.4` amd64 y
-  el código fuente para recompilar con otro Mutter 50.
+- Blur my Shell 76 captura y redondea el fondo sin la biblioteca nativa anterior.
+  Sus fuentes y el `.deb` histórico se conservan para recuperar instalaciones antiguas.
 - Rounded Window Corners Reborn 25: esquinas de 12 px en ventanas flotantes,
   borde y sombra suaves; respeta las ventanas maximizadas y las aplicaciones
   que ya decoran sus esquinas.
-- System Monitor 6: **solo CPU y RAM**, a la izquierda de todo, cada 2 segundos.
+- System Monitor 8 / 3.1 (GNOME Glass): **solo CPU y RAM**, a la izquierda de todo, cada 2 segundos.
   Incluye integración local con Dash to Panel para mostrar el indicador en cada
   pantalla y reconstruirlo cuando cambian las barras.
 - ScreenToSpace 15: al maximizar una ventana que comparte escritorio, la separa
@@ -131,10 +130,14 @@ Si la copia es anterior al estilo de Nautilus, se retiran únicamente la
 importación y el archivo de estilo propios de GNOME Glass.
 
 Podés ejecutar el instalador varias veces: cada ejecución vuelve a aplicar el
-mismo perfil y crea su propia copia. No se habilitan actualizaciones automáticas
-de las extensiones desde este instalador. Una actualización manual de Dash to
-Panel, Blur my Shell, System Monitor o ScreenToSpace puede reemplazar los cambios locales; ejecutá de nuevo el
-instalador para recuperar esta versión.
+mismo perfil y crea su propia copia. Blur my Shell y System Monitor usan los
+UUID locales `blur-my-shell@gnome-glass.local` y
+`system-monitor-panel@gnome-glass.local`; las versiones oficiales quedan
+desactivadas. Sus actualizaciones no sobrescriben las adaptaciones de Glass.
+Dash to Panel y ScreenToSpace aún usan sus UUID originales: una actualización
+puede reemplazar esos cambios; el instalador recupera la versión guardada.
+Los archivos originales de Blur my Shell 76 y System Monitor 8 se conservan en
+`vendor/upstream/`, junto con sus hashes en `profile/components.json`.
 
 ## Mantenerlo y llevarlo a otra computadora
 
@@ -193,12 +196,14 @@ parcial sin cambiar tu escritorio ni instalar paquetes del sistema.
 `./tests/headless.sh` realiza además una prueba con las seis extensiones en
 un compositor GNOME separado, comprueba el desenfoque nativo y la posición
 inferior izquierda de CPU/RAM, y prueba maximizar, restaurar y cerrar ventanas,
-así como la visibilidad global de la barra. Requiere la biblioteca nativa ya instalada y
+así como la visibilidad global de la barra. Requiere
 `gnome-shell-test-tool` disponible. No necesita cerrar tu sesión.
 
 `./tests/multimonitor.sh` ejecuta GNOME con tres pantallas virtuales, prueba
-la herencia del diseño y CPU/RAM en cada barra, descarta las superficies de
-escritorio y comprueba la reconstrucción de una a tres barras sin duplicados.
+la herencia del diseño, CPU/RAM y alineación del desenfoque en cada barra.
+También prueba la migración desde las versiones oficiales a las locales,
+descarta las superficies de escritorio y reconstruye de una a tres barras
+sin indicadores duplicados.
 
 `./tests/mouse-workspaces.sh` prueba los atajos que emite el mouse con tres
 pantallas virtuales: independencia entre pantallas, ventanas nuevas en el

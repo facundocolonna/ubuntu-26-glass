@@ -8,7 +8,7 @@ import * as Scripting from 'resource:///org/gnome/shell/ui/scripting.js';
 export const METRICS = {};
 export async function run() {
     Main.overview.hide();
-    const path = `${GLib.get_user_data_dir()}/gnome-shell/extensions/system-monitor-panel@naimur/progressBar.js`;
+    const path = `${GLib.get_user_data_dir()}/gnome-shell/extensions/system-monitor-panel@gnome-glass.local/progressBar.js`;
     const {setBarWidth} = await import(Gio.File.new_for_path(path).get_uri());
     const host = new St.Bin({x: 100, y: 150, width: 530, height: 32});
     const track = new St.BoxLayout({style: 'min-width: 220px; height: 7px;',

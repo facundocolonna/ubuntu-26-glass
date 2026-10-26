@@ -20,7 +20,8 @@
     "gnome-shell-extension-manager",
     "gnome-tweaks"
   ],
-  "build": [
+  "build": [],
+  "legacy_build": [
     "build-essential",
     "meson",
     "ninja-build",

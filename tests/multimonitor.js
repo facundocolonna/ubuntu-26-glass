@@ -10,7 +10,7 @@ export async function run() {
     await Scripting.sleep(5000);
     if (Main.layoutManager.monitors.length !== 3)
         throw new Error(`Expected three real virtual displays, got ${Main.layoutManager.monitors.length}`);
-    for (const uuid of ['dash-to-panel@jderose9.github.com', 'system-monitor-panel@naimur', 'screentospace@dilzhan.dev']) {
+    for (const uuid of ['dash-to-panel@jderose9.github.com', 'system-monitor-panel@gnome-glass.local', 'screentospace@dilzhan.dev']) {
         const extension = Main.extensionManager.lookup(uuid);
         if (extension?.state !== 1)
             throw new Error(`${uuid}: state=${extension?.state} error=${extension?.error}`);
@@ -22,17 +22,27 @@ export async function run() {
     const {getPanelElementPositions} = await load('dash-to-panel@jderose9.github.com/panelSettings.js');
     const {getInterestingWindows} = await load('dash-to-panel@jderose9.github.com/appIcons.js');
     const {WindowFilter} = await load('screentospace@dilzhan.dev/windowFilter.js');
+    const getBlur = () => Main.extensionManager.lookup('blur-my-shell@gnome-glass.local').stateObj;
 
     function checkPanels(expected) {
         const panels = global.dashToPanel.panels;
         if (panels.length !== expected)
             throw new Error(`Expected ${expected} bars, got ${panels.length}`);
         for (const panel of panels) {
+            const actors = getBlur()._panel_blur.actors_list.find(a => a.widgets.panel === panel.panel);
+            if (!actors || actors.static_blur)
+                throw new Error(`Missing live blur on monitor ${panel.monitor.index}`);
+            const [px, py] = panel.panel.get_transformed_position();
+            const [bx, by] = actors.widgets.background.get_transformed_position();
+            const [pw, ph] = panel.panel.get_transformed_size();
+            const [bw, bh] = actors.widgets.background.get_transformed_size();
+            if ([px-bx, py-by, pw-bw, ph-bh].some(delta => Math.abs(delta) > 0.5))
+                throw new Error(`Blur offset on monitor ${panel.monitor.index}: panel=${px},${py},${pw},${ph}; blur=${bx},${by},${bw},${bh}`);
             const layout = getPanelElementPositions(settings, panel.monitor.index);
             if (layout.find(e => e.element === 'taskbar')?.position !== 'centerMonitor' ||
                 layout.find(e => e.element === 'showAppsButton')?.visible !== false)
                 throw new Error(`Wrong inherited layout on monitor ${panel.monitor.index}`);
-            const indicator = panel.panel.statusArea['system-monitor-panel@naimur'];
+            const indicator = panel.panel.statusArea['system-monitor-panel@gnome-glass.local'];
             if (!indicator || panel.panel._leftBox.get_first_child() !== indicator.container)
                 throw new Error(`Missing left CPU/RAM on monitor ${panel.monitor.index}`);
             for (const [name, box] of indicator._panelBoxes) {
@@ -49,6 +59,35 @@ export async function run() {
     }
     checkPanels(3);
     print('MULTIMONITOR_PASS centered_apps=true app_grid_button=false cpu_ram=3_panels');
+
+    // Reproduce an official update replacing the local patches, then exercise
+    // the same one-time migration that runs after the real next login.
+    const shell = new Gio.Settings({schema_id: 'org.gnome.shell'});
+    const replacements = {
+        'blur-my-shell@gnome-glass.local': 'blur-my-shell@aunetx',
+        'system-monitor-panel@gnome-glass.local': 'system-monitor-panel@naimur',
+    };
+    shell.set_strv('disabled-extensions', Object.keys(replacements));
+    shell.set_strv('enabled-extensions', shell.get_strv('enabled-extensions').map(uuid => replacements[uuid] ?? uuid));
+    Gio.Settings.sync();
+    await Scripting.sleep(2500);
+    for (const uuid of Object.values(replacements)) {
+        if (Main.extensionManager.lookup(uuid)?.state !== 1)
+            throw new Error(`Official extension failed before migration: ${uuid}`);
+    }
+    const helper = Gio.File.new_for_uri(import.meta.url).get_parent().get_parent()
+        .get_child('scripts/activate-local-extensions.py').get_path();
+    const migration = Gio.Subprocess.new(['/usr/bin/python3', helper], Gio.SubprocessFlags.NONE);
+    await new Promise((resolve, reject) => migration.wait_check_async(null, (proc, result) => {
+        try {proc.wait_check_finish(result); resolve();} catch (error) {reject(error);}
+    }));
+    await Scripting.sleep(2500);
+    checkPanels(3);
+    for (const uuid of Object.values(replacements)) {
+        if (Main.extensionManager.lookup(uuid)?.state === 1)
+            throw new Error(`Official and local extension are both active: ${uuid}`);
+    }
+    print('LOCAL_FORK_MIGRATION_PASS no_type_collisions=true upstream_disabled=true cpu_ram=3 aligned_blurs=3');
 
     const normalWindows = () => global.get_window_actors().map(a => a.meta_window).filter(w => w.get_window_type() === 0);
     const before = new Set(normalWindows());

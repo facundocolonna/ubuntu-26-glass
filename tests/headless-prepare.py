@@ -25,6 +25,13 @@ with tempfile.TemporaryDirectory(dir=data.parent) as temporary:
     i.deploy(stage, components, data)
 i.apply_profile(profile, data / 'gnome-shell/extensions')
 i.enable_profile(components)
+if os.environ.get('GNOME_GLASS_TEST_UPSTREAMS') == '1':
+    import zipfile
+    for component in components['extensions']:
+        if component.get('upstream_archive'):
+            target = data / 'gnome-shell/extensions' / component['upstream_uuid']
+            with zipfile.ZipFile(i.REPO / component['upstream_archive']) as archive:
+                archive.extractall(target)
 arguments = sys.argv[1:]
 if os.environ.get('GNOME_GLASS_TEST_MONITORS') == '3':
     arguments += ['--virtual-monitor', '1024x768', '--virtual-monitor', '1600x900']

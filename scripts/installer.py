@@ -180,7 +180,7 @@ def enable_profile(components):
     shell = Gio.Settings.new(SHELL_SCHEMA)
     managed = [c['uuid'] for c in components['extensions']]
     # Dash to Panel first, Blur my Shell last: it needs the final panel geometry.
-    managed.sort(key=lambda uuid: (uuid == 'blur-my-shell@aunetx', uuid != 'dash-to-panel@jderose9.github.com'))
+    managed.sort(key=lambda uuid: (uuid == 'blur-my-shell@gnome-glass.local', uuid != 'dash-to-panel@jderose9.github.com'))
     disabled = set(components['disable'])
     current = [x for x in shell.get_strv('enabled-extensions') if x not in disabled and x not in managed]
     shell.set_strv('disabled-extensions', [x for x in shell.get_strv('disabled-extensions') if x not in managed] +
@@ -222,6 +222,9 @@ def restore_backup(backup, data_home, components):
     if Path(state['data_home']) != data_home:
         raise RuntimeError('La copia corresponde a otra carpeta de usuario.')
     allowed = set(map(str, paths(data_home, components)))
+    # Backups made before the local forks used the upstream directory names.
+    allowed.update(str(Path('gnome-shell/extensions') / c['upstream_uuid'])
+                   for c in components['extensions'] if c.get('upstream_uuid'))
     recorded = {f['relative'] for f in state['files']}
     if not recorded or not recorded.issubset(allowed):
         raise RuntimeError('La lista de archivos de la copia no coincide con este instalador.')
@@ -231,6 +234,9 @@ def restore_backup(backup, data_home, components):
         if f['existed'] and not ((backup / 'files' / relative).exists() or (backup / 'files' / relative).is_symlink()):
             raise RuntimeError(f'Copia incompleta: {relative}')
     gtk_style.validate(backup, state)
+    pending = Path(os.environ.get('XDG_CONFIG_HOME', str(Path.home() / '.config'))) / 'autostart/gnome-glass-local-extensions.desktop'
+    if pending.exists() and 'X-GNOME-Glass-Migration=true' in pending.read_text():
+        pending.unlink()
     pause_extensions(components)
     # First restore files; schemas needed by absent extensions live in the backup.
     for f in state['files']:
@@ -306,7 +312,7 @@ def main():
     print(f'Integridad: {count} archivos verificados. {version}; Mutter {mutter}.')
     print('Extensiones: barra, desenfoque, esquinas, CPU/RAM y escritorios independientes por pantalla.')
     print('Temas: WhiteSur-dark, Bibata-Modern-Ice, Yaru-blue-dark.')
-    print('Biblioteca de desenfoque: ' + {'installed': 'ya instalada y compatible', 'bundled': 'instalar .deb incluido', 'build': 'compilar para el Mutter instalado'}[mode])
+    print('Biblioteca de desenfoque: ' + {'not-needed': 'no requerida por Blur my Shell 76', 'installed': 'ya instalada y compatible', 'bundled': 'instalar .deb incluido', 'build': 'compilar para el Mutter instalado'}[mode])
     print('Paquetes pendientes: ' + (', '.join(missing) or 'ninguno'))
     if args.check or args.dry_run:
         print('Verificación terminada. No se modificó el escritorio.')
@@ -321,7 +327,7 @@ def main():
         mode, mutter = native_plan(REPO, components['native'])
         with tempfile.TemporaryDirectory(prefix='gnome-glass-', dir=state_root) as temporary:
             temporary = Path(temporary)
-            if mode != 'installed':
+            if mode in ('bundled', 'build'):
                 package = (REPO / 'vendor/native/gnome-rounded-blur-local.deb' if mode == 'bundled'
                            else build_package(REPO, temporary / 'native'))
                 command('sudo', 'dpkg', '-i', package)

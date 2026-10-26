@@ -2,9 +2,12 @@
   "extensions": [
     {
       "name": "Blur my Shell",
-      "uuid": "blur-my-shell@aunetx",
-      "version": 75,
-      "url": "https://github.com/aunetx/blur-my-shell"
+      "uuid": "blur-my-shell@gnome-glass.local",
+      "version": 76,
+      "url": "https://github.com/aunetx/blur-my-shell",
+      "upstream_uuid": "blur-my-shell@aunetx",
+      "upstream_archive": "vendor/upstream/blur-my-shell@aunetx-v76.zip",
+      "upstream_sha256": "14ce6a05914f5ae3f3c27e82fff752bc4f76e07b26b9786a4494bd991570dbe9"
     },
     {
       "name": "Dash to Panel",
@@ -20,9 +23,12 @@
     },
     {
       "name": "System Monitor",
-      "uuid": "system-monitor-panel@naimur",
-      "version": 6,
-      "url": "https://github.com/naimur900/system-monitor-panel-gnome"
+      "uuid": "system-monitor-panel@gnome-glass.local",
+      "version": 8,
+      "url": "https://github.com/naimur900/system-monitor-panel-gnome",
+      "upstream_uuid": "system-monitor-panel@naimur",
+      "upstream_archive": "vendor/upstream/system-monitor-panel@naimur-v8.zip",
+      "upstream_sha256": "c5f3aeb8e282a450ae4994a1b371be464ec1fd0b5d0bd16b12528a3630af9bf4"
     },
     {
       "name": "ScreenToSpace",
@@ -45,7 +51,9 @@
     "Bibata-Modern-Ice"
   ],
   "disable": [
-    "ubuntu-dock@ubuntu.com"
+    "ubuntu-dock@ubuntu.com",
+    "blur-my-shell@aunetx",
+    "system-monitor-panel@naimur"
   ],
   "native": {
     "package": "gnome-rounded-blur-local",
@@ -53,7 +61,8 @@
     "commit": "a4db9e5947b1cea0a05c57768356921420f91293",
     "binary_arch": "amd64",
     "binary_mutter": "50.1-0ubuntu2.4",
-    "mutter_package": "libmutter-18-0"
+    "mutter_package": "libmutter-18-0",
+    "required": false
   },
   "themes_source": {
     "WhiteSur": {
