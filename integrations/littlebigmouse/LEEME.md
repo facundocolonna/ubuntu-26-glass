@@ -85,3 +85,18 @@ activo, el motor conserva los botones Atrás/Adelante normales. Reiniciar
 Little Big Mouse después de activar o desactivar el controlador actualiza esa
 elección. La primera instalación requiere volver a iniciar sesión para que
 GNOME descubra la extensión nueva.
+
+Si vuelven a funcionar como Atrás/Adelante, comprobar que Workspace Islands
+figure activo en Extensiones. Para reactivarlo y hacer que el motor tome la
+asignación sin cerrar sesión, con el componente ya instalado:
+
+```bash
+gnome-extensions enable workspace-islands@danielbernalo.github.io
+systemctl --user restart littlebigmouse-trial.service
+```
+
+El registro debe indicar `Botones laterales: escritorios por pantalla`:
+
+```bash
+journalctl --user -u littlebigmouse-trial.service -n 40 --no-pager
+```

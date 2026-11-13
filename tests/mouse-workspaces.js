@@ -62,6 +62,13 @@ app.run(None)`;
         }
         if (!w) throw new Error('GTK test window did not open');
         processes.set(w,process);
+        // window-created can precede the client's initial map/configure;
+        // wait until the surface is shown before moving the fixture.
+        for (let i=0; i<30 && !w.get_compositor_private()?.is_mapped(); i++)
+            await Scripting.sleep(100);
+        if (!w.get_compositor_private()?.is_mapped())
+            throw new Error('GTK test window did not map');
+        await Scripting.sleep(100);
         w.move_to_monitor(index);
         const m=monitors[index];
         w.move_resize_frame(false, m.x+150, m.y+150, 400, 240);
@@ -77,7 +84,7 @@ app.run(None)`;
     const s1 = islands._registry.forMonitorIndex(secondary[0].index);
     const s2 = islands._registry.forMonitorIndex(secondary[1].index);
     if (!s1.allWindows.includes(b) || !s2.allWindows.includes(c))
-        throw new Error('Secondary windows not tracked');
+        throw new Error(`Secondary windows not tracked: b=${b.get_monitor()} c=${c.get_monitor()} expected=${secondary.map(m=>m.index)} tracked=${s1.allWindows.length},${s2.allWindows.length}`);
     await pointer(secondary[0].index);
     await press(1);
     if (s1.activeIndex !== 1 || s2.activeIndex !== 0 || !b.minimized || c.minimized || a.minimized ||
